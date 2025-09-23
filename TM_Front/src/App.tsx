@@ -1,4 +1,4 @@
-import Comments from "./comments/Comments"
+import Comments from "./comments/pages/Comments"
 
 function App() {
 

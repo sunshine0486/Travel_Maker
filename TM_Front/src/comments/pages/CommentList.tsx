@@ -12,7 +12,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CommentInput from "./CommentInput";
 import { updateComment } from "../api/CommentApi";
-import type { Comment } from "../type";
+import type { Comment } from "../../type";
 
 interface CommentListProps {
   comments: Comment[];

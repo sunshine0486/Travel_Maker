@@ -1,5 +1,6 @@
 package com.tm_back.service;
 
+import com.tm_back.config.CommentConfig;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.constant.Role;
 import com.tm_back.dto.CommentResponseDto;
@@ -28,6 +29,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
+    private final CommentConfig commentConfig; // 최대글자수 설정 주입
 
     @Override
     public List<CommentResponseDto> getCommentsByBoardId(Long boardId) {
@@ -38,6 +40,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentResponseDto createComment(CreateCommentDto dto) {
+        // ✅ 글자 수 검증
+        int maxLength = commentConfig.getMaxLength();
+        if (dto.getContent().length() > maxLength) {
+            throw new IllegalArgumentException("댓글은 " + maxLength + "자 이내로 작성해야 합니다.");
+        }
+
         Member member = memberRepository.findById(dto.getMemberId())
                 .orElseThrow(() -> new RuntimeException("멤버 없음"));
 
@@ -59,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         Comment saved = commentRepository.saveAndFlush(comment);
-        log.info("📌 댓글 저장 완료: id={}, board={}, member={}, parent={}",
+        log.info("댓글 저장 완료: id={}, board={}, member={}, parent={}",
                 saved.getId(), saved.getBoard().getId(), saved.getMember().getId(),
                 saved.getParent() != null ? saved.getParent().getId() : null);
 

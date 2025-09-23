@@ -3,7 +3,7 @@ import { Box, Typography, Divider } from "@mui/material";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import { getComment, deleteComment } from "../api/CommentApi";
-import type { Comment } from "../type";
+import type { Comment } from "../../type";
 
 interface CommentProps {
   boardId: number;
