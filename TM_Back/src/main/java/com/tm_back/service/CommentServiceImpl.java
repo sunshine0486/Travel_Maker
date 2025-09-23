@@ -55,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
                 .board(board)
                 .member(member)
                 .parent(parent)
-                .delYn(DeleteStatus.N) // 기본값
+                .delYn(DeleteStatus.N)
                 .build();
 
         Comment saved = commentRepository.saveAndFlush(comment);
@@ -97,7 +97,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         if (comment.getParent() == null) {
-            // 일반 댓글
+            // 부모 댓글
             if (!comment.getChildren().isEmpty()) {
                 // 자식 댓글이 있으면 본문만 변경
                 comment.setContent("삭제된 댓글입니다");
@@ -109,7 +109,14 @@ public class CommentServiceImpl implements CommentService {
             }
         } else {
             // 대댓글 → 그냥 삭제
+            Comment parent = comment.getParent();
             commentRepository.delete(comment);
+
+            // 부모가 이미 "삭제됨" 상태이고, 더 이상 자식이 없으면 부모도 삭제
+            int childCount = commentRepository.countByParentId(parent.getId());
+            if (parent.getDelYn() == DeleteStatus.Y && childCount == 0) {
+                commentRepository.delete(parent);
+            }
         }
     }
 
@@ -117,7 +124,6 @@ public class CommentServiceImpl implements CommentService {
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
 
-        // 삭제 상태 처리
         dto.setContent(
                 comment.getDelYn() == DeleteStatus.Y ? "삭제된 댓글입니다" : comment.getContent()
         );
@@ -133,20 +139,17 @@ public class CommentServiceImpl implements CommentService {
             dto.setMemberNickname(comment.getMember().getNickname());
         }
 
-        // children 안전하게 확보 (타입을 명확히 해줘서 method reference 컴파일 에러 방지)
         List<Comment> children = comment.getChildren() != null
                 ? comment.getChildren()
-                : Collections.<Comment>emptyList();
+                : Collections.emptyList();
 
-        // 자기 자신 참조 같은 순환이 있다면 간단 필터로 방지 (optional)
         dto.setReplies(
                 children.stream()
-                        .filter(child -> !child.getId().equals(comment.getId())) // 자기참조 방지
-                        .map(this::toDto) // 재귀 변환
+                        .filter(child -> !child.getId().equals(comment.getId()))
+                        .map(this::toDto)
                         .collect(Collectors.toList())
         );
 
         return dto;
     }
-
 }
