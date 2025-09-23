@@ -29,6 +29,7 @@ public class TmBackApplication implements CommandLineRunner {
                         .nickname("핑핑이")
                         .role(Role.USER)
                         .build());
+
         boardRepository.save(Board.builder()
                         .title("제목이지롱")
                         .build());

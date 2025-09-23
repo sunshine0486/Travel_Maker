@@ -1,5 +1,6 @@
 package com.tm_back.service;
 
+import com.tm_back.constant.DeleteStatus;
 import com.tm_back.constant.Role;
 import com.tm_back.dto.CommentResponseDto;
 import com.tm_back.dto.CreateCommentDto;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentResponseDto> getCommentsByBoardId(Long boardId) {
-        List<Comment> comments =
-                commentRepository.findByBoardIdAndParentIsNullOrderByRegTimeAsc(boardId);
+        List<Comment> comments = commentRepository.findByBoardIdAndParentIsNullOrderByRegTimeAsc(boardId);
         return comments.stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -54,15 +55,13 @@ public class CommentServiceImpl implements CommentService {
                 .board(board)
                 .member(member)
                 .parent(parent)
+                .delYn(DeleteStatus.N) // 기본값
                 .build();
 
         Comment saved = commentRepository.saveAndFlush(comment);
-        log.info("📌 저장 완료: id={}, board={}, member={}, parent={}",
-                saved.getId(),
-                saved.getBoard() != null ? saved.getBoard().getId() : null,
-                saved.getMember() != null ? saved.getMember().getId() : null,
-                saved.getParent() != null ? saved.getParent().getId() : null
-        );
+        log.info("📌 댓글 저장 완료: id={}, board={}, member={}, parent={}",
+                saved.getId(), saved.getBoard().getId(), saved.getMember().getId(),
+                saved.getParent() != null ? saved.getParent().getId() : null);
 
         return toDto(saved);
     }
@@ -81,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.setContent(dto.getContent());
-        return toDto(commentRepository.saveAndFlush(comment));
+        return toDto(commentRepository.save(comment));
     }
 
     @Override
@@ -97,13 +96,32 @@ public class CommentServiceImpl implements CommentService {
             throw new RuntimeException("권한이 없습니다.");
         }
 
-        commentRepository.delete(comment);
+        if (comment.getParent() == null) {
+            // 일반 댓글
+            if (!comment.getChildren().isEmpty()) {
+                // 자식 댓글이 있으면 본문만 변경
+                comment.setContent("삭제된 댓글입니다");
+                comment.setDelYn(DeleteStatus.Y);
+                commentRepository.save(comment);
+            } else {
+                // 자식 없으면 완전 삭제
+                commentRepository.delete(comment);
+            }
+        } else {
+            // 대댓글 → 그냥 삭제
+            commentRepository.delete(comment);
+        }
     }
 
     private CommentResponseDto toDto(Comment comment) {
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
-        dto.setContent(comment.getContent());
+
+        // 삭제 상태 처리
+        dto.setContent(
+                comment.getDelYn() == DeleteStatus.Y ? "삭제된 댓글입니다" : comment.getContent()
+        );
+
         dto.setRegTime(comment.getRegTime());
         dto.setUpdateTime(comment.getUpdateTime());
 
@@ -115,13 +133,20 @@ public class CommentServiceImpl implements CommentService {
             dto.setMemberNickname(comment.getMember().getNickname());
         }
 
+        // children 안전하게 확보 (타입을 명확히 해줘서 method reference 컴파일 에러 방지)
+        List<Comment> children = comment.getChildren() != null
+                ? comment.getChildren()
+                : Collections.<Comment>emptyList();
+
+        // 자기 자신 참조 같은 순환이 있다면 간단 필터로 방지 (optional)
         dto.setReplies(
-                comment.getChildren() != null
-                        ? comment.getChildren().stream()
-                        .map(this::toDto)
+                children.stream()
+                        .filter(child -> !child.getId().equals(comment.getId())) // 자기참조 방지
+                        .map(this::toDto) // 재귀 변환
                         .collect(Collectors.toList())
-                        : List.of()
         );
+
         return dto;
     }
+
 }

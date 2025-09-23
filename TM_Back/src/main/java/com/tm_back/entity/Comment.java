@@ -1,15 +1,14 @@
 package com.tm_back.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tm_back.constant.DeleteStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Comment")
+@Table(name = "comment")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +23,11 @@ public class Comment extends BaseTimeEntity {
     @Column(nullable = false, length = 500)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "del_yn", nullable = false, length = 1)
+    @Builder.Default
+    private DeleteStatus delYn = DeleteStatus.N;  // 기본값 N
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
@@ -36,7 +40,8 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    // ✅ 대댓글 리스트 (children)
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Comment> children = new ArrayList<>();
+
 }
