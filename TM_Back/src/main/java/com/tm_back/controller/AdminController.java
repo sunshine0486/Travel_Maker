@@ -36,10 +36,9 @@ public class AdminController {
 
     // ===== Comment =====
     @GetMapping("/comments")
-    public PagedResponse<CommentResponseDto> getComments(@RequestParam Long boardId,
-                                                         @RequestParam(defaultValue = "0") int page,
+    public PagedResponse<CommentResponseDto> getComments(@RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size) {
-        return adminService.getComments(boardId, page, size);
+        return adminService.getComments(page, size);
     }
 
     @PatchMapping("/comments/{id}/delete")

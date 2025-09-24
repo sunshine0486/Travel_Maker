@@ -24,12 +24,9 @@ export const deleteBoard = async (id: number): Promise<void> => {
 };
 
 // ===== Comment API =====
-export const getComments = async (
-  boardId: number,
-  page = 1
-): Promise<PagedResponse<Comment>> => {
+export const getComments = async (page = 1): Promise<PagedResponse<Comment>> => {
   const res = await axios.get<PagedResponse<Comment>>(
-    `${BASE_URL}/admin/comments?boardId=${boardId}&page=${page - 1}`
+    `${BASE_URL}/admin/comments?page=${page - 1}`
   );
   return res.data;
 };

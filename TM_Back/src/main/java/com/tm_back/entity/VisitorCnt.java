@@ -1,22 +1,31 @@
 package com.tm_back.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "visitor_cnt")
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class VisitorCnt {
 
     @Id
     @Column(name = "visitor_day")
-    private LocalDate visitorDay; // 날짜 (PK)
+    private LocalDate visitDate;  // 날짜가 PK
+    @Column(name = "cnt")
+    private long count;
 
-    private Long cnt;
+    public VisitorCnt(LocalDate visitDate, long count) {
+        this.visitDate = visitDate;
+        this.count = count;
+    }
+
+    public void increment() {
+        this.count++;
+    }
 }
+
