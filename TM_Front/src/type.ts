@@ -7,6 +7,25 @@ export interface Comment {
   boardId: number | null;
   memberId: number | null;
   replies: Comment[];
+  delYn: "Y" | "N";
+}
+
+export interface Member {
+  id: number;
+  loginId: string;
+  nickname: string;
+  email: string;
+  birth: string;
+  phoneNumber: string;
+  address: string;
+}
+
+export interface Board {
+  id: number;
+  category: "TIP" | "REVIEW" | "QNA" | "NOTICE"
+  title: string;
+  author: string;
+  createdAt: string;
 }
 
 export interface CreateCommentRequest {
@@ -15,3 +34,12 @@ export interface CreateCommentRequest {
   boardId: number;
   parentCommentId?: number;
 }
+
+export interface PagedResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+}
+
+
+

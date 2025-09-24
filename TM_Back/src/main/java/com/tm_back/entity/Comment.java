@@ -29,19 +29,25 @@ public class Comment extends BaseTimeEntity {
     private DeleteStatus delYn = DeleteStatus.N;  // 기본값 N
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
     @Builder.Default
     private List<Comment> children = new ArrayList<>();
 
+    @PrePersist
+    public void prePersist() {
+        if (this.delYn == null) {
+            this.delYn = DeleteStatus.N;
+        }
+    }
 }

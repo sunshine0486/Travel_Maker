@@ -26,6 +26,7 @@ const normalizeComment = (raw: unknown): Comment => {
     boardId: c.boardId ?? c.board?.id ?? null,
     memberId: c.memberId ?? c.member?.id ?? null,
     replies: (c.replies ?? c.children ?? []).map((r) => normalizeComment(r)),
+    delYn: c.delYn ?? "N",
   });
 
   return map(x);
@@ -35,6 +36,7 @@ const normalizeComment = (raw: unknown): Comment => {
 export const getComment = async (boardId: number): Promise<Comment[]> => {
   const res = await axios.get<Comment[]>(`${BASE_URL}/comment/board/${boardId}`);
   const data = res.data ?? [];
+  console.log(data);
   return Array.isArray(data) ? data.map(normalizeComment) : [];
 };
 

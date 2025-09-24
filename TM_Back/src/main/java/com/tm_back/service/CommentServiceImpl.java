@@ -40,7 +40,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentResponseDto createComment(CreateCommentDto dto) {
-        // ✅ 글자 수 검증
         int maxLength = commentConfig.getMaxLength();
         if (dto.getContent().length() > maxLength) {
             throw new IllegalArgumentException("댓글은 " + maxLength + "자 이내로 작성해야 합니다.");
@@ -99,36 +98,54 @@ public class CommentServiceImpl implements CommentService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("멤버 없음"));
 
+        // 권한 체크
         if (!comment.getMember().getId().equals(member.getId())
                 && member.getRole() != Role.ADMIN) {
             throw new RuntimeException("권한이 없습니다.");
         }
 
+        // ===== 부모 여부 판별 =====
         if (comment.getParent() == null) {
-            // 부모 댓글
-            if (!comment.getChildren().isEmpty()) {
-                // 자식 댓글이 있으면 본문만 변경
-                comment.setContent("삭제된 댓글입니다");
+            // 부모 댓글: DB 기준으로 "활성(=delYn = N) 자식 수" 확인
+            long activeChildCount = commentRepository.countByParentIdAndDelYn(comment.getId(), DeleteStatus.N);
+            log.info("deleteComment: parent id={}, activeChildCount={}", comment.getId(), activeChildCount);
+
+            if (activeChildCount > 0) {
+                // 자식이 있으면 -> 소프트 삭제
+                comment.setContent("삭제된 댓글입니다.");
                 comment.setDelYn(DeleteStatus.Y);
                 commentRepository.save(comment);
+                log.info("deleteComment: parent {} soft-deleted (has children)", comment.getId());
             } else {
-                // 자식 없으면 완전 삭제
+                // 자식 없으면 -> 하드 삭제
                 commentRepository.delete(comment);
+                log.info("deleteComment: parent {} hard-deleted (no children)", comment.getId());
             }
         } else {
-            // 대댓글 → 그냥 삭제
+            // ===== 자식 댓글 처리 (무조건 하드 삭제) =====
             Comment parent = comment.getParent();
-            commentRepository.delete(comment);
+            Long parentId = parent != null ? parent.getId() : null;
+            log.info("deleteComment: deleting child id={}, parentId={}", comment.getId(), parentId);
 
-            // 부모가 이미 "삭제됨" 상태이고, 더 이상 자식이 없으면 부모도 삭제
-            int childCount = commentRepository.countByParentId(parent.getId());
-            if (parent.getDelYn() == DeleteStatus.Y && childCount == 0) {
-                commentRepository.delete(parent);
+            commentRepository.delete(comment);
+            commentRepository.flush(); // 즉시 DB 반영(중요)
+
+            // 부모가 이미 소프트 삭제 상태라면 "활성 자식 수"를 확인해서 0이면 부모도 삭제
+            if (parent != null && parent.getDelYn() == DeleteStatus.Y) {
+                long aliveChildCount = commentRepository.countByParentIdAndDelYn(parent.getId(), DeleteStatus.N);
+                log.info("deleteComment: after child delete, parentId={} aliveChildCount={}", parent.getId(), aliveChildCount);
+                if (aliveChildCount == 0) {
+                    commentRepository.delete(parent);
+                    log.info("deleteComment: parent {} hard-deleted (no alive children left)", parent.getId());
+                }
             }
         }
     }
 
+
     private CommentResponseDto toDto(Comment comment) {
+        log.info("toDto: id={}, entity.delYn={}", comment.getId(), comment.getDelYn());
+
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
 
@@ -147,6 +164,10 @@ public class CommentServiceImpl implements CommentService {
             dto.setMemberNickname(comment.getMember().getNickname());
         }
 
+        // 🔥 여기서 반드시 DTO에 값 넣어주기
+        dto.setDelYn(comment.getDelYn() != null ? comment.getDelYn().name() : "N");
+        log.info("toDto: id={}, dto.delYn={}", dto.getId(), dto.getDelYn());
+
         List<Comment> children = comment.getChildren() != null
                 ? comment.getChildren()
                 : Collections.emptyList();
@@ -160,4 +181,5 @@ public class CommentServiceImpl implements CommentService {
 
         return dto;
     }
+
 }

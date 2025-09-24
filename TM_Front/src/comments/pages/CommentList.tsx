@@ -78,91 +78,98 @@ export default function CommentList({
     setReplyingToId((prev) => (prev === commentId ? null : commentId));
   };
 
-  const renderComment = (comment: Comment, isReply = false) => (
-    <Paper
-      key={comment.id}
-      elevation={isReply ? 1 : 2}
-      sx={{
-        padding: isReply ? 1.5 : 2,
-        marginBottom: 2,
-        backgroundColor: isReply ? "#f9f9f9" : "white",
-      }}
-    >
-      <Box display="flex" justifyContent="space-between">
-        <Box>
-          <Typography variant="subtitle2">{comment.author}</Typography>
-          <Typography variant="caption" color="textSecondary">
-            {comment.createdAt}
-          </Typography>
-        </Box>
-        <IconButton onClick={(e) => handleMenuClick(e, comment.id)}>
-          <MoreVertIcon />
-        </IconButton>
-      </Box>
+  const renderComment = (comment: Comment, isReply = false) => {
+    // ✅ 소프트 삭제된 댓글은 숨김
+    if (comment.delYn === "Y") {
+      return null;
+    }
 
-      {/* 본문 / 수정 모드 */}
-      {editingId === comment.id ? (
-        <Box mt={1}>
-          <TextField
-            fullWidth
-            multiline
-            rows={2}
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-          />
-          <Box mt={1} display="flex" justifyContent="flex-end" gap={1}>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => handleSave(comment.id)}
-            >
-              저장
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => setEditingId(null)}
-            >
-              취소
+    return (
+      <Paper
+        key={comment.id}
+        elevation={isReply ? 1 : 2}
+        sx={{
+          padding: isReply ? 1.5 : 2,
+          marginBottom: 2,
+          backgroundColor: isReply ? "#f9f9f9" : "white",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between">
+          <Box>
+            <Typography variant="subtitle2">{comment.author}</Typography>
+            <Typography variant="caption" color="textSecondary">
+              {comment.createdAt}
+            </Typography>
+          </Box>
+          <IconButton onClick={(e) => handleMenuClick(e, comment.id)}>
+            <MoreVertIcon />
+          </IconButton>
+        </Box>
+
+        {/* 본문 / 수정 모드 */}
+        {editingId === comment.id ? (
+          <Box mt={1}>
+            <TextField
+              fullWidth
+              multiline
+              rows={2}
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+            />
+            <Box mt={1} display="flex" justifyContent="flex-end" gap={1}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleSave(comment.id)}
+              >
+                저장
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setEditingId(null)}
+              >
+                취소
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          <Typography mt={1}>{comment.content}</Typography>
+        )}
+
+        {/* 답글쓰기 (최상위 댓글만) */}
+        {!isReply && (
+          <Box mt={1}>
+            <Button size="small" onClick={() => toggleReplyInput(comment.id)}>
+              답글쓰기
             </Button>
           </Box>
-        </Box>
-      ) : (
-        <Typography mt={1}>{comment.content}</Typography>
-      )}
+        )}
 
-      {/* 답글쓰기 (최상위 댓글만) */}
-      {!isReply && (
-        <Box mt={1}>
-          <Button size="small" onClick={() => toggleReplyInput(comment.id)}>
-            답글쓰기
-          </Button>
-        </Box>
-      )}
+        {/* 답글 입력창 */}
+        {replyingToId === comment.id && (
+          <Box mt={1} ml={2}>
+            <CommentInput
+              memberId={memberId}
+              boardId={boardId}
+              parentCommentId={comment.id}
+              onSuccess={() => {
+                onRefresh();
+                setReplyingToId(null);
+              }}
+            />
+          </Box>
+        )}
 
-      {/* 답글 입력창 */}
-      {replyingToId === comment.id && (
-        <Box mt={1} ml={2}>
-          <CommentInput
-            memberId={memberId}
-            boardId={boardId}
-            parentCommentId={comment.id}
-            onSuccess={() => {
-              onRefresh();
-              setReplyingToId(null);
-            }}
-          />
-        </Box>
-      )}
-
-      {/* 대댓글 */}
-      {comment.replies.length > 0 && (
-        <Box mt={2} ml={2}>
-          {comment.replies.map((reply) => renderComment(reply, true))}
-        </Box>
-      )}
-    </Paper>
-  );
+        {/* 대댓글 */}
+        {comment.replies.length > 0 && (
+          <Box mt={2} ml={2}>
+            {comment.replies.map((reply) => renderComment(reply, true))}
+          </Box>
+        )}
+      </Paper>
+    );
+  };
 
   return (
     <Box mt={4}>
