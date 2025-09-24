@@ -1,8 +1,12 @@
 package com.tm_back.board.controller;
 
 import com.tm_back.board.dto.BoardFormDto;
+import com.tm_back.board.entity.Member;
+import com.tm_back.board.repository.MemberRepository;
+import com.tm_back.board.service.BoardFileService;
 import com.tm_back.board.service.BoardImgService;
 import com.tm_back.board.service.BoardService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,19 +18,20 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/board")
 public class BoardController {
 
     private final BoardImgService boardImgService;
     private final BoardService boardService;
+    private final BoardFileService boardFileService;
+    private final MemberRepository memberRepository;
 
     // 이미지 url 반환
-    @PostMapping("/image")
-    public ResponseEntity<?> getImgUrl(@RequestParam(value = "boardImgFile") MultipartFile boardImgFile){
-        try{
+    @PostMapping("/board/image")
+    public ResponseEntity<?> getImgUrl(@RequestParam(value = "boardImgFile") MultipartFile boardImgFile) {
+        try {
             String url = boardImgService.getImgUrl(boardImgFile);
             return ResponseEntity.ok(url);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError()
                     .body("이미지 업로드 중 에러가 발생했습니다.");
@@ -34,14 +39,14 @@ public class BoardController {
     }
 
     // 게시글 작성
-    @PostMapping("/new")
+    @PostMapping("/board/new")
     public ResponseEntity<?> createBoard(
             @Valid @ModelAttribute BoardFormDto boardFormDto,
             BindingResult bindingResult,
             @RequestParam(value = "boardFile", required = false) List<MultipartFile> boardFileList
 //            ,Authentication authentication
     ) {
-
+        System.out.println(boardFormDto.getContent());
         // 유효성 검증
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("필수 입력값이 누락되었습니다.");
@@ -53,7 +58,7 @@ public class BoardController {
 //                    ,authentication.getName()
             );
             System.out.println(boardFormDto);
-            return ResponseEntity. ok(boardId); // 게시글아이디 반환
+            return ResponseEntity.ok(boardId); // 게시글아이디 반환
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError()
@@ -61,5 +66,80 @@ public class BoardController {
         }
     }
 
+    // 게시글 상세 조회
+    @GetMapping("/board/{boardId}")
+    public BoardFormDto getBoardDtl(
+            @PathVariable Long boardId
+//            ,Authentication authentication
+    ) {
+        Long memberId = null; // 비회원이면 null
+//        if (authentication != null && authentication.isAuthenticated() &&
+//                !(authentication instanceof AnonymousAuthenticationToken)) {
+        // 로그인한 회원이면 memberId 세팅
+//            Member member = memberRepository.findByLoginId(authentication.getName())
+        String loginId = "user";
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(EntityNotFoundException::new);
+        memberId = member.getId();
+//        }
+
+        return boardService.getBoardDtl(boardId, memberId);
+    }
+
+
+    // 파일 다운로드 횟수 증가
+    @PostMapping("/board/{boardFileId}/downCnt")
+    public ResponseEntity<Integer> increaseDownloadCount(@PathVariable Long boardFileId) {
+        int updatedCount = boardFileService.increaseDownloadCount(boardFileId);
+        return ResponseEntity.ok(updatedCount);
+    }
+
+    // 좋아요
+    @PostMapping("/board/{boardId}/like")
+    public void likeBoard(@PathVariable Long boardId
+//            , Authentication authentication
+    ) {
+        Long memberId = null; // 비회원이면 null
+//        if (authentication != null && authentication.isAuthenticated() &&
+//                !(authentication instanceof AnonymousAuthenticationToken)) {
+        // 로그인한 회원이면 memberId 세팅
+//            Member member = memberRepository.findByLoginId(authentication.getName())
+        String loginId = "user2";
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(EntityNotFoundException::new);
+        memberId = member.getId();
+//        }
+
+        boardService.likeBoard(boardId, memberId);
+    }
+
+    // 수정일도 확인해야함
+    @PutMapping("/board/{boardId}")
+    public ResponseEntity<?> updateBoard(
+            @Valid @ModelAttribute BoardFormDto boardFormDto,
+            BindingResult bindingResult,
+            @RequestParam(value = "boardImgFile", required = false) List<MultipartFile> boardImgFileList
+//            Authentication authentication
+    ) {
+
+        // 유효성 검증
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("필수 입력값이 누락되었습니다.");
+        }
+
+        try {
+            Long boardId = boardService.updateBoard(boardFormDto, boardImgFileList);
+            return ResponseEntity.ok(boardId); // 게시글아이디 반환
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body("게시글 등록 중 에러가 발생했습니다.");
+        }
+    }
+
+    @DeleteMapping("/board/{boardId}")
+    public Long deleteBoard(@PathVariable("boardId") Long boardId) throws Exception {
+        return boardService.deleteBoard(boardId);
+    }
 
 }

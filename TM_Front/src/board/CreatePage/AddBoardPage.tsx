@@ -9,13 +9,16 @@ import {
   Select,
   MenuItem,
   Chip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import QuillEditor, { type QuillEditorHandle } from "./QuillEditor";
-import { CATEGORIES_MAP } from "../ts/category";
+import { CATEGORIES_MAP } from "../../ts/category";
 import { useRef, useState } from "react";
-import { createBoard } from "./ts/boardApi";
+import { createBoard } from "../boardApi";
+import { useNavigate } from "react-router-dom";
+import { QuillEditor, type QuillEditorHandle } from "./QuillEditor";
 
-export default function NewBoard() {
+export default function AddBoardPage() {
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
@@ -25,14 +28,20 @@ export default function NewBoard() {
   const [titleError, setTitleError] = useState(false);
   const [categoryError, setCategoryError] = useState(false);
 
-  const handleSubmit = () => {
+  const navigate = useNavigate();
+  // Snackbar 상태
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
+  const handleSubmit = async () => {
     const content = editorRef.current?.getContent() || "";
-    // 초기값 리셋
     setCategoryError(false);
     setTitleError(false);
 
     let hasError = false;
-
     if (!category) {
       setCategoryError(true);
       hasError = true;
@@ -44,21 +53,35 @@ export default function NewBoard() {
     if (hasError) return;
 
     const files = editorRef.current?.getFiles() || [];
-
     const formData = new FormData();
     formData.append("category", category);
     formData.append("title", title);
     formData.append("content", content);
-
-    // 해시태그를 문자열 하나로 합쳐서 append
-    formData.append("hashTag", hashtags.join(""));
+    formData.append("hashTag", hashtags.join("")); // 해시태그를 문자열 하나로 합쳐서 append
 
     // 파일 반복 append
     files.forEach((fileItem) => formData.append("boardFile", fileItem.file));
 
     console.log("FormData 확인:", formData);
+    // createBoard(formData);
+    try {
+      const boardId = await createBoard(formData);
+      if (!boardId) {
+        throw new Error("게시글 저장에 실패했습니다."); // 서버에서 ID 안보내면 실패 처리
+      }
+      setSnackbarMessage("게시글이 성공적으로 저장되었습니다!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
 
-    createBoard(formData);
+      // 필요시 저장 후 이동
+      navigate(`/board/${boardId}`);
+    } catch (error) {
+      console.error(error);
+      // 저장 실패 시 이동하지 않고 오류 메시지 표시
+      setSnackbarMessage("게시글 저장에 실패했습니다.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
   };
 
   return (
@@ -161,6 +184,20 @@ export default function NewBoard() {
           </Button>
         </Stack>
       </Stack>
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbarSeverity}
+          onClose={() => setSnackbarOpen(false)}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

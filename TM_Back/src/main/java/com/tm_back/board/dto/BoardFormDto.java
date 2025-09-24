@@ -6,6 +6,7 @@ import com.tm_back.board.entity.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +37,13 @@ public class BoardFormDto {
     private LocalDateTime regTime;
 
 
+    // 상세페이지 조회용
+    private String nickname;
+    private Integer views;
+    private LocalDateTime updateTime;
+    private Boolean isLiked; //어떤 회원이 불러온 게시글에 좋아요를 했는지 여부
+    private Integer likeCount; // 게시그의 좋아요 개수
+
     // dto -> entity (게시글 첫 작성시)
     public Board toEntity(Member member) {
         return Board.builder()
@@ -45,8 +53,16 @@ public class BoardFormDto {
                 .hashTag(this.hashTag)
                 .views(0)
                 .delYn(Del_YN.N)
-                .regTime(LocalDateTime.now())
                 .member(member)
                 .build();
     }
+
+    // entity -> dto
+    private static ModelMapper modelMapper = new ModelMapper();
+    public static BoardFormDto toDto(Board board) {
+        BoardFormDto dto = modelMapper.map(board, BoardFormDto.class);
+        dto.setNickname(board.getMember() != null ? board.getMember().getNickname() : null);
+        return dto;
+    }
+
 }

@@ -8,7 +8,7 @@ import {
 import ReactQuill, { Quill } from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { ImageResize } from "quill-image-resize-module-ts"; // 리사이즈
-import { getImgUrl } from "./ts/boardApi";
+import { getImgUrl } from "../boardApi";
 import {
   Alert,
   Box,
@@ -21,17 +21,19 @@ import {
   Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import "./css/QuillEditor.css";
+import "./QuillEditor.css";
 import {
   ALLOWED_EXTENSIONS,
   MAX_FILE_COUNT,
   MAX_FILE_SIZE,
   type FileItem,
-} from "./ts/type";
+} from "../../ts/type";
+import { formatSize } from "../../ts/format";
 
 type QuillEditorProps = {
   initialContent?: string;
-  onSubmit: (content: string, files: FileItem[]) => void;
+  onSubmit?: (content: string, files: FileItem[]) => void;
+  initialFiles?: FileItem[]; // 수정용
   page?: "new" | "edit";
 };
 
@@ -58,10 +60,10 @@ Quill.register("modules/imageResize", ImageResize);
 //   // initialContent = "",
 //   onSubmit,
 // }: QuillEditorProps) {
-const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
-  ({ initialContent = "" }, ref) => {
+export const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
+  ({ initialContent = "", initialFiles = [] }, ref) => {
     const quillRef = useRef<ReactQuill | null>(null);
-    const [files, setFiles] = useState<FileItem[]>([]);
+    const [files, setFiles] = useState<FileItem[]>(initialFiles);
     const [toastOpen, setToastOpen] = useState(false);
 
     // 개인정보 마스킹 (사진넣으면 안되고, 한번 마스킹하면 안됨.)
@@ -154,7 +156,9 @@ const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
           // 에디터에 이미지 삽입
           const range = quillInstance.getSelection(true);
           if (range) {
+            // 받아온 url을 이미지 태그에 삽입
             quillInstance.insertEmbed(range.index, "image", imgUrl);
+            // 사용자 편의를 위해 커서 이미지 오른쪽으로 이동
             quillInstance.setSelection(range.index + 1);
           }
           // 파일 목록에도 추가
@@ -240,21 +244,12 @@ const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
       },
     };
 
-    // 1mb 이상이면 mb, 미만이면 kb
-    const formatSize = (size: number) => {
-      if (size < 1024 * 1024) {
-        return `${(size / 1024).toFixed(2)} KB`;
-      } else {
-        return `${(size / 1024 / 1024).toFixed(2)} MB`;
-      }
-    };
-
     return (
       <>
         <ReactQuill
           ref={quillRef}
           theme="snow"
-          style={{ width: "800px", height: "500px" }}
+          style={{ width: "750px", height: "500px" }}
           placeholder="내용을 입력해주세요..."
           modules={modules}
         />
@@ -335,4 +330,265 @@ const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
   }
 );
 
-export default QuillEditor;
+// import {
+//   forwardRef,
+//   useEffect,
+//   useImperativeHandle,
+//   useRef,
+//   useState,
+// } from "react";
+// import ReactQuill, { Quill } from "react-quill-new";
+// import "react-quill-new/dist/quill.snow.css";
+// import { ImageResize } from "quill-image-resize-module-ts";
+// import { getImgUrl } from "../boardApi";
+// import {
+//   Alert,
+//   Box,
+//   Button,
+//   Card,
+//   CardContent,
+//   IconButton,
+//   Snackbar,
+//   Stack,
+//   Typography,
+// } from "@mui/material";
+// import ClearIcon from "@mui/icons-material/Clear";
+// import {
+//   ALLOWED_EXTENSIONS,
+//   MAX_FILE_COUNT,
+//   MAX_FILE_SIZE,
+//   type FileItem,
+// } from "../type";
+
+// type QuillEditorProps = {
+//   value: string;
+//   onChange?: (content: string) => void;
+//   initialFiles?: FileItem[];
+//   page?: "new" | "edit";
+//   onSubmit: (content: string, files: FileItem[]) => void;
+// };
+
+// export type QuillEditorHandle = {
+//   getContent: () => string;
+//   getFiles: () => FileItem[];
+// };
+
+// // Quill window 전역
+// declare global {
+//   interface Window {
+//     Quill: typeof Quill;
+//   }
+// }
+// if (typeof window !== "undefined" && window.Quill) {
+//   window.Quill = Quill;
+// }
+// Quill.register("modules/imageResize", ImageResize);
+
+// const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
+//   ({ value, onChange, initialFiles = [] }, ref) => {
+//     const quillRef = useRef<ReactQuill | null>(null);
+//     const [files, setFiles] = useState<FileItem[]>(initialFiles);
+//     const [toastOpen, setToastOpen] = useState(false);
+
+//     // initialFiles가 바뀌면 files 상태 업데이트
+//     useEffect(() => {
+//       setFiles(initialFiles);
+//     }, [initialFiles]);
+
+//     // content랑 files newboard에 넘기기
+//     useImperativeHandle(ref, () => ({
+//       getContent: () => quillRef.current?.getEditor().root.innerHTML || "",
+//       getFiles: () => files,
+//     }));
+
+//     const imageHandler = () => {
+//       if (!quillRef.current) return;
+//       const quillInstance: Quill = quillRef.current.getEditor();
+
+//       const input = document.createElement("input");
+//       input.type = "file";
+//       input.accept = "image/*";
+//       input.click();
+
+//       input.onchange = async () => {
+//         if (!input.files || input.files.length === 0) return;
+//         const file = input.files[0];
+
+//         if (files.length >= MAX_FILE_COUNT) {
+//           alert(`첨부 파일은 최대 ${MAX_FILE_COUNT}개까지 가능합니다.`);
+//           return;
+//         }
+
+//         const ext = file.name.split(".").pop()?.toLowerCase();
+//         if (!ext || !ALLOWED_EXTENSIONS.includes(ext)) {
+//           alert(`허용되지 않은 확장자입니다`);
+//           return;
+//         }
+
+//         if (file.size > MAX_FILE_SIZE) {
+//           alert(
+//             `파일 용량은 최대 ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(
+//               0
+//             )}MB까지 가능합니다.`
+//           );
+//           return;
+//         }
+
+//         try {
+//           const imgUrl = `/api${await getImgUrl(file)}`;
+//           const range = quillInstance.getSelection(true);
+//           if (range) {
+//             quillInstance.insertEmbed(range.index, "image", imgUrl);
+//             quillInstance.setSelection(range.index + 1);
+//           }
+//           setFiles((prev) => [
+//             ...prev,
+//             { name: file.name, size: file.size, type: file.type, file },
+//           ]);
+//         } catch (error) {
+//           console.error("이미지 업로드 실패:", error);
+//         }
+//       };
+//     };
+
+//     const handleFileAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+//       if (!e.target.files) return;
+//       const newFiles: FileItem[] = [];
+
+//       for (const file of e.target.files) {
+//         if (files.length + newFiles.length >= MAX_FILE_COUNT) {
+//           alert(`첨부 파일은 최대 ${MAX_FILE_COUNT}개까지 가능합니다.`);
+//           e.target.value = "";
+//           return;
+//         }
+//         const ext = file.name.split(".").pop()?.toLowerCase();
+//         if (!ext || !ALLOWED_EXTENSIONS.includes(ext)) {
+//           alert(`허용되지 않은 확장자입니다`);
+//           continue;
+//         }
+//         if (file.size > MAX_FILE_SIZE) {
+//           alert(
+//             `파일 용량은 최대 ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(
+//               0
+//             )}MB까지 가능합니다.`
+//           );
+//           continue;
+//         }
+//         newFiles.push({
+//           name: file.name,
+//           size: file.size,
+//           type: file.type,
+//           file,
+//         });
+//       }
+
+//       if (newFiles.length > 0) setFiles((prev) => [...prev, ...newFiles]);
+//       e.target.value = "";
+//     };
+
+//     const handleFileRemove = (index: number) => {
+//       setFiles((prev) => prev.filter((_, i) => i !== index));
+//     };
+
+//     const modules = {
+//       toolbar: {
+//         container: [
+//           [{ header: [1, 2, 3, 4, 5, false] }],
+//           [
+//             "bold",
+//             "italic",
+//             "underline",
+//             "strike",
+//             "blockquote",
+//             { color: [] },
+//           ],
+//           [
+//             { list: "ordered" },
+//             { list: "bullet" },
+//             { indent: "+1" },
+//             { align: [] },
+//           ],
+//           ["link", "image", "video"],
+//           ["clean"],
+//         ],
+//         handlers: {
+//           image: imageHandler,
+//         },
+//       },
+//       imageResize: { modules: ["Resize", "DisplaySize"] },
+//     };
+
+//     const formatSize = (size: number) =>
+//       size < 1024 * 1024
+//         ? `${(size / 1024).toFixed(2)} KB`
+//         : `${(size / 1024 / 1024).toFixed(2)} MB`;
+
+//     return (
+//       <>
+//         <ReactQuill
+//           ref={quillRef}
+//           theme="snow"
+//           value={value}
+//           onChange={onChange}
+//           style={{ width: "750px", height: "500px" }}
+//           modules={modules}
+//           placeholder="내용을 입력해주세요..."
+//         />
+//         <br></br> {/* 파일 선택 버튼 */}
+//         <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 2 }}>
+//           <Button
+//             variant="outlined"
+//             component="label"
+//             sx={{
+//               color: "text.primary",
+//               borderColor: "text.primary",
+//               textTransform: "none",
+//               width: "15%",
+//             }}
+//           >
+//             파일 선택
+//             <input type="file" hidden multiple onChange={handleFileAdd} />
+//           </Button>
+//           <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+//             파일 개수는 <b>최대 {MAX_FILE_COUNT}개</b>, 각 파일{" "}
+//             <b> 최대 {(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB</b>까지
+//             가능합니다. <br /> 허용 확장자 :{" "}
+//             <b>{ALLOWED_EXTENSIONS.join(", ")}</b>{" "}
+//           </Typography>{" "}
+//         </Box>
+//         <Stack spacing={1} mt={2}>
+//           {files.map((f, idx) => (
+//             <Card key={idx} variant="outlined">
+//               <CardContent
+//                 sx={{
+//                   display: "flex",
+//                   justifyContent: "space-between",
+//                   alignItems: "center",
+//                 }}
+//               >
+//                 <Typography variant="body2">
+//                   {f.name} ({formatSize(f.size)})
+//                 </Typography>
+//                 <IconButton onClick={() => handleFileRemove(idx)}>
+//                   <ClearIcon />
+//                 </IconButton>
+//               </CardContent>
+//             </Card>
+//           ))}
+//         </Stack>
+//         <Snackbar
+//           open={toastOpen}
+//           autoHideDuration={2000}
+//           onClose={() => setToastOpen(false)}
+//           anchorOrigin={{ vertical: "top", horizontal: "center" }}
+//         >
+//           <Alert severity="error" sx={{ minWidth: 300, textAlign: "center" }}>
+//             개인정보가 감지되어 마스킹됩니다.
+//           </Alert>
+//         </Snackbar>
+//       </>
+//     );
+//   }
+// );
+
+// export default QuillEditor;

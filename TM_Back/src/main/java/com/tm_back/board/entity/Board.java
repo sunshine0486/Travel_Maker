@@ -2,6 +2,7 @@ package com.tm_back.board.entity;
 
 import com.tm_back.board.constant.Category;
 import com.tm_back.board.constant.Del_YN;
+import com.tm_back.board.dto.BoardFormDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Builder
-public class Board {
+public class Board extends BaseTimeEntity {
 
     @Id
     @Column(name="board_id")
@@ -26,8 +27,7 @@ public class Board {
     @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
@@ -40,15 +40,17 @@ public class Board {
     private String hashTag; // null 허용
 
     @Column(nullable = false)
-    private LocalDateTime regTime;
-
-    private LocalDateTime updateTime; // null 허용
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Del_YN delYn; // 초기값 N
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void updateBoard(BoardFormDto boardFormDto) {
+        this.category = boardFormDto.getCategory();
+        this.title = boardFormDto.getTitle();
+        this.content = boardFormDto.getContent();
+        this.hashTag = boardFormDto.getHashTag();
+    }
 }

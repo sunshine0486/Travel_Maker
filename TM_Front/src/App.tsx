@@ -1,10 +1,14 @@
+import { Container, CssBaseline } from "@mui/material";
 import "./App.css";
-import NewBoard from "./board/NewBoard";
+import AppRoutes from "./AppRoutes";
 
 function App() {
   return (
     <>
-      <NewBoard />
+      <CssBaseline />
+      <Container maxWidth="xl">
+        <AppRoutes />
+      </Container>
     </>
   );
 }

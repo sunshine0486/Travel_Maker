@@ -19,5 +19,5 @@ public class Member {
     private String loginId;
 
     @Column(nullable = false)
-    private String nickName;
+    private String nickname;
 }

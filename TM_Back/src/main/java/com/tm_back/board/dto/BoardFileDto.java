@@ -1,5 +1,6 @@
 package com.tm_back.board.dto;
 
+import com.tm_back.board.entity.BoardFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +20,17 @@ public class BoardFileDto {
     private String oriFileName; //원본 이미지 파일명
 
     private Long fileSize; // 파일 용량
+
+    private Integer downloadCount;
+
+    public static BoardFileDto toDto(BoardFile boardFile) {
+        return BoardFileDto.builder()
+                .id(boardFile.getId())
+                .fileName(boardFile.getFileName())
+                .oriFileName(boardFile.getOriFileName())
+                .fileUrl(boardFile.getFileUrl())
+                .fileSize(boardFile.getFileSize())
+                .downloadCount(boardFile.getDownCnt())
+                .build();
+    }
 }
