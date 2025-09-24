@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";

@@ -50,7 +50,7 @@ export default function VisitorsAdmin() {
       {/* ✅ 그래프 */}
       <Box mt={3}>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData} barCategoryGap={40}>
+          <BarChart data={chartData} barCategoryGap={45}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="label"

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +37,9 @@ public class VisitorController {
         LocalDate start = today.minusDays(days - 1);
 
         return visitorService.findBetweenDates(start, today).stream()
-                .map(v -> new VisitorDto(v.getVisitDate().toString(), v.getCount()))
+                .map(v -> new VisitorDto(
+                                            v.getVisitDate().format(DateTimeFormatter.ofPattern("MM-dd")),
+                                            v.getCount()))
                 .toList();
     }
 

@@ -31,6 +31,6 @@ export const getComments = async (page = 1): Promise<PagedResponse<Comment>> => 
   return res.data;
 };
 
-export const softDeleteComment = async (id: number): Promise<void> => {
+export const deleteComment = async (id: number): Promise<void> => {
   await axios.patch(`${BASE_URL}/admin/comments/${id}/delete`);
 };

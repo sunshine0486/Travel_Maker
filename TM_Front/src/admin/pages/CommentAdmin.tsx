@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
-import { getComments, softDeleteComment } from "../api/adminApi";
+import { getComments, deleteComment } from "../api/adminApi";
 import type { Comment } from "../../type";
 import SearchModal from "../components/SearchModal";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,7 @@ export default function CommentAdmin() {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
-    await softDeleteComment(id);
+    await deleteComment(id);
     await fetchComments(page); // ✅ 삭제 후 목록 새로고침
   };
 
