@@ -15,15 +15,18 @@
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "axios": "^1.12.2",
+    "jwt-decode": "^4.0.0",
     "quill-image-resize-module-ts": "^3.0.3",
     "react": "^18.3.1",
     "react-daum-postcode": "^3.2.0",
     "react-dom": "^18.3.1",
     "react-quill-new": "^3.6.0",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@types/jwt-decode": "^2.2.1",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
