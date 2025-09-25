@@ -1,12 +1,10 @@
 import { create } from "zustand";
-
 type AuthStore = {
   isAuthenticated: boolean;
   loginId: string;
   login: (id: string) => void;
   logout: () => void;
 };
-
 // sessionStorage에서 초기 상태를 불러오는 함수
 const getInitialState = () => {
   const jwt = sessionStorage.getItem("jwt");
@@ -16,7 +14,6 @@ const getInitialState = () => {
     loginId: storedLoginId || "", // loginId가 없으면 빈 문자열로 초기화
   };
 };
-
 export const useAuthStore = create<AuthStore>((set) => ({
   ...getInitialState(), // 초기 상태를 여기서 설정합니다.
   login: (id: string) => {
@@ -38,7 +35,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
     });
   },
 }));
-
 // export const useAuthStore = create<AuthStore>((set) => ({
 //   isAuthenticated: !!sessionStorage.getItem("jwt"),
 //   loginId: "",

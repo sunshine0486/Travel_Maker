@@ -1,4 +1,4 @@
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { getAuthToken } from "../api/loginApi";
 import type { User } from "../../type";
@@ -43,9 +43,7 @@ export default function Login() {
       })
       .catch((err) => {
         console.log(err);
-        setToastMessage(
-          err.response?.data || "로그인에 실패했습니다. 실패! 실패! 실패!"
-        );
+        setToastMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
       });
   };
 
@@ -53,21 +51,59 @@ export default function Login() {
     <>
       <Box
         display="flex"
+        flexDirection="column"
         justifyContent="center"
         alignItems="center"
         height="100vh" // 뷰포트 전체 높이를 사용해 화면 중앙에 위치시킴
       >
-        <Stack spacing={2} mt={2} alignItems="center">
+        {/* Stack 대신 Box를 사용한 레이아웃 */}
+        {/* <Box sx={{ width: 300 }}> */}
+        {/* 로고를 위한 별도의 Box */}
+        {/* <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#151B54",
+              paddingY: 3,
+              
+              marginBottom: 10,
+              borderRadius: 2,
+              width: "100%", // 부모 Stack의 너비를 따릅니다.
+            }}
+          >
+            <img
+              src="/travel_maker_miniwhite.png"
+              alt="Travel Maker Logo"
+              style={{ height: "100px", paddingLeft: "345px", margin: "7px" }} // ✅ 로고 크기 키움
+            />
+          </Box> */}
+
+        <Stack spacing={2} sx={{ width: 300 }}>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            textAlign="center"
+            color="primary"
+          >
+            로그인
+          </Typography>
+
           {toastMessage && (
             <Box
-              border="1px solid red"
-              borderRadius={1}
-              padding={1}
-              bgcolor="#ffe6e6"
-              color="red"
-              fontWeight="bold"
-              width="100%"
-              textAlign="center"
+              sx={{
+                border: "1px solid #f44336",
+                borderRadius: 2,
+                padding: "8px 12px",
+                bgcolor: "#fff0f0",
+                color: "#d32f2f",
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                textAlign: "center",
+                whiteSpace: "normal", // 줄바꿈 허용
+                wordBreak: "keep-all", // 단어 단위로 줄바꿈
+              }}
             >
               {toastMessage}
             </Box>
@@ -80,8 +116,7 @@ export default function Login() {
             type="password"
           />
           <Button color="primary" onClick={handleLogin}>
-            {" "}
-            로그인{" "}
+            로그인
           </Button>
           {/* <Snackbar
             open={toastOpen}
@@ -92,6 +127,7 @@ export default function Login() {
           <Button onClick={() => window.history.back()}>취소</Button>
         </Stack>
       </Box>
+      {/* </Box> */}
     </>
   );
 }

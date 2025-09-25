@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import DaumPostcode, { type Address } from "react-daum-postcode";
 import axios from "axios";
-import { getAxiosConfig } from "../api/loginApi";
 import { useAuthStore } from "../../store";
 
 const BASE_URL = import.meta.env.VITE_API_URL;

@@ -201,25 +201,41 @@ export default function SignUp() {
 
         <Stack direction="row" spacing={1}>
           <TextField
-            label="아이디"
+            label={
+              <span>
+                아이디<span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="loginId"
             value={form.loginId}
             onChange={handleChange}
           />
-          <Button onClick={checkDuplicateId}>
-            중복 <br></br>확인{" "}
+          <Button
+            onClick={checkDuplicateId}
+            variant="outlined"
+            sx={{ flex: 1.5, whiteSpace: "nowrap" }}
+          >
+            중복 확인
           </Button>
         </Stack>
 
         <TextField
-          label="비밀번호"
+          label={
+            <span>
+              비밀번호<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="password"
           type="password"
           value={form.password}
           onChange={handleChange}
         />
         <TextField
-          label="비밀번호 확인"
+          label={
+            <span>
+              비밀번호 확인<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="passwordConfirm"
           type="password"
           value={form.passwordConfirm}
@@ -238,55 +254,93 @@ export default function SignUp() {
 
         <Stack direction="row" spacing={1}>
           <TextField
-            label="닉네임"
+            label={
+              <span>
+                닉네임<span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="nickname"
             value={form.nickname}
             onChange={handleChange}
           />
-          <Button onClick={checkDuplicateNickname}>
-            중복 <br></br>확인
+          <Button
+            onClick={checkDuplicateNickname}
+            variant="outlined"
+            sx={{ flex: 1.5, whiteSpace: "nowrap" }} // 버튼 길게 + 줄바꿈 방지
+          >
+            중복 확인
           </Button>
         </Stack>
 
         <TextField
-          label="e-mail"
+          label={
+            <span>
+              e-mail<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="email"
           value={form.email}
           onChange={handleChange}
         />
         <TextField
-          label="생년월일"
+          label={
+            <span>
+              생년월일<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="birth"
           value={form.birth}
           onChange={handleChange}
+          helperText={
+            <span style={{ color: "red" }}>ex) 990101 - 6자리로 입력</span>
+          }
         />
         <TextField
-          label="전화번호"
+          label={
+            <span>
+              전화번호<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="phoneNumber"
           value={form.phoneNumber}
           onChange={handleChange}
+          helperText={<span style={{ color: "red" }}>'-'제외 11자리 입력</span>}
         />
 
         <Stack direction="row" spacing={1}>
           <TextField
-            label="우편번호"
+            label={
+              <span>
+                우편번호<span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="zipcode"
             value={form.zipcode}
             onChange={handleChange}
             disabled // 사용자가 직접 입력하지 못하도록 비활성화
           />
-          <Button onClick={() => setIsPostcodeOpen(true)}>검색</Button>
+          <Button onClick={() => setIsPostcodeOpen(true)} variant="outlined">
+            검색
+          </Button>
         </Stack>
 
         <TextField
-          label="주소"
+          label={
+            <span>
+              주소<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="address"
           value={form.address}
           onChange={handleChange}
           disabled
         />
         <TextField
-          label="상세 주소"
+          label={
+            <span>
+              상세주소<span style={{ color: "red" }}>*</span>
+            </span>
+          }
           name="addressDetail"
           value={form.addressDetail}
           onChange={handleChange}
