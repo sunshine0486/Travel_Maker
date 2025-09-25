@@ -10,7 +10,7 @@ import {
 import ReactQuill, { Quill } from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { ImageResize } from "quill-image-resize-module-ts"; // 리사이즈
-import { getImgUrl } from "../boardApi";
+import { getImgUrl } from "../api/boardApi";
 import {
   Alert,
   Box,
@@ -26,7 +26,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import "./QuillEditor.css";
 import { type FileItem } from "../type";
 import { formatSize } from "../../ts/format";
-import { getFileSetting } from "../AdminApi";
+import { getFileSetting } from "../../admin/api/adminApi";
 
 type QuillEditorProps = {
   initialContent?: string;

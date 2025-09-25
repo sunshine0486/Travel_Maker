@@ -8,8 +8,8 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import type { FileSettingDto } from "./type";
-import { getFileSetting, updateFileSetting } from "./AdminApi";
+import type { FileSettingDto } from "../../board/type";
+import { getFileSetting, updateFileSetting } from "../api/adminApi";
 
 export default function FileSettingPage() {
   const [maxFiles, setMaxFiles] = useState<number>();

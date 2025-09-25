@@ -18,14 +18,16 @@ import {
   getBoardDtl,
   increaseDownloadCount,
   likeBoard,
-} from "../boardApi";
+} from "../api/boardApi";
 import { formatDateTime, formatSize } from "../../ts/format";
 import { CATEGORIES_MAP } from "../../ts/category";
+import { useAuthStore } from "../../store";
 
 export default function BoardDtlPage() {
   const { id } = useParams<{ id: string }>();
   const boardId = Number(id);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore.getState(); // store 상태 가져오기
 
   const [data, setData] = useState<Board>({
     category: "",
@@ -49,14 +51,15 @@ export default function BoardDtlPage() {
     loadBoardData();
   }, [boardId]);
 
+  console.log(isAuthenticated);
   // 좋아요 클릭
   const handleLikeClick = async () => {
     // 비회원 처리: 좋아요 불가, 로그인 페이지 이동
-    // const isLoggedIn = Boolean(localStorage.getItem("accessToken")); // 예시
-    // if (!isLoggedIn) {
-    //   navigate("/login");
-    //   return;
-    // }
+    if (!isAuthenticated) {
+      alert("로그인이 필요한 기능입니다.");
+      navigate("/login"); // 로그인 페이지로 이동
+      return;
+    }
 
     try {
       await likeBoard(boardId);
@@ -177,7 +180,7 @@ export default function BoardDtlPage() {
       <Divider sx={{ my: 2 }} />
 
       {/* 3. 본문 내용 */}
-      <Paper variant="outlined" sx={{ width: 900, p: 5 }}>
+      <Paper variant="outlined" sx={{ width: 900, p: 5, mx: "auto" }}>
         <Box
           sx={{ mb: 2 }}
           dangerouslySetInnerHTML={{
@@ -278,7 +281,7 @@ export default function BoardDtlPage() {
         </Stack>
       </Paper>
 
-      {/* 댓글 */}
+      {/* 좋아요 */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3, gap: 2 }}>
         <IconButton
           color="primary"

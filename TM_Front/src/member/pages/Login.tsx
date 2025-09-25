@@ -80,8 +80,7 @@ export default function Login() {
             type="password"
           />
           <Button color="primary" onClick={handleLogin}>
-            {" "}
-            로그인{" "}
+            로그인
           </Button>
           {/* <Snackbar
             open={toastOpen}

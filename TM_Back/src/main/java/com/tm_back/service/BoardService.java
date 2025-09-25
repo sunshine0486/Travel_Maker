@@ -67,6 +67,7 @@ public class BoardService {
         boolean isLiked = false; // 비회원이면
         if (memberId != null) { //회원일경우
             isLiked = likesRepository.existsByBoardIdAndMemberId(boardId, memberId);
+            System.out.println(isLiked);
         }
 
         // 게시글의 좋아요 개수 세기
@@ -135,7 +136,6 @@ public class BoardService {
         // 4. 새 이미지 저장
         if (boardFileList != null && !boardFileList.isEmpty()) {
             for (MultipartFile newFile : boardFileList) {
-                System.out.println("새로운 파일!!!!!!!!!!!!!!!"+newFile);
                 // 실제 업로드된 파일만 처리 (null/빈 파일 제외)
                 if (newFile != null && !newFile.isEmpty()) {
                     BoardFile boardFile = new BoardFile();

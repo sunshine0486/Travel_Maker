@@ -9,14 +9,13 @@ import { useEffect } from "react";
 import SignUp from "./member/pages/SignUp";
 import Login from "./member/pages/Login";
 import MyPageWrapper from "./member/pages/MyPageWrapper";
-import AddBoardPage from "./board/CreatePage/AddBoardPage";
-import BoardDtlPage from "./board/DtlPage/BoardDtlPage";
-import EditBoardPage from "./board/CreatePage/EditBoardPage";
-import FileSettingPage from "./board/FileSettingPage";
+import AddBoardPage from "./board/pages/AddBoardPage";
+import BoardDtlPage from "./board/pages/BoardDtlPage";
+import EditBoardPage from "./board/pages/EditBoardPage";
+import FileSettingPage from "./admin/pages/FileSettingPage";
 
 export default function App() {
   const BASE_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetch(`${BASE_URL}/visit`, { credentials: "include" });
   }, []);
