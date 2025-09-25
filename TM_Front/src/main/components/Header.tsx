@@ -16,7 +16,10 @@ export default function Header() {
           alignItems: "center", // ✅ 수직 가운데 정렬
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+          onClick={() => navigate("/")} // 메인 페이지로 이동하는 로직 추가
+        >
           <img
             src="/travel_maker_miniwhite.png"
             alt="Travel Maker Logo"
@@ -25,10 +28,18 @@ export default function Header() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          <Button color="inherit">홈</Button>
-          <Button color="inherit">카테고리</Button>
-          <Button color="inherit">인기글</Button>
-          <Button color="inherit">커뮤니티</Button>
+          <Button color="inherit" onClick={() => navigate("/")}>
+            홈
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/categories")}>
+            카테고리
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/hot-posts")}>
+            인기글
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/community")}>
+            커뮤니티
+          </Button>
         </Box>
 
         <Box sx={{ display: "flex", gap: 1 }}>
