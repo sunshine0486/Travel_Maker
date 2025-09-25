@@ -1,14 +1,18 @@
 import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store";
+
 export default function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuthStore();
+
   const handleLogoutClick = () => {
     sessionStorage.removeItem("jwt"); // "" 대신 완전히 삭제
+    sessionStorage.removeItem("loginId");
     logout();
     navigate("/"); // 로그아웃 후 홈으로 이동 (선택사항)
   };
+
   return (
     <AppBar position="static" sx={{ background: "#151B54", width: "100vw" }}>
       <Toolbar

@@ -1,7 +1,7 @@
 import axios from "axios";
-import type { Board } from "./type";
-import { BASE_URL } from "./AdminApi";
-import { getAxiosConfig } from "../member/api/loginApi";
+import type { Board } from "../type";
+import { getAxiosConfig } from "../../member/api/loginApi";
+import { BASE_URL } from "../../admin/api/adminApi";
 
 // 이미지를 서버로 넘겨 url 받아오기
 export const getImgUrl = async (file: File) => {
@@ -51,7 +51,10 @@ export const updateBoard = async (boardId: number, formData: FormData) => {
 
 // 게시글 상세 조회
 export const getBoardDtl = async (boardId: number): Promise<Board> => {
-  const response = await axios.get(`${BASE_URL}/board/show/${boardId}`);
+  const response = await axios.get(
+    `${BASE_URL}/board/show/${boardId}`,
+    getAxiosConfig()
+  );
   console.log(response.data);
   return response.data;
 };
@@ -64,7 +67,11 @@ export const increaseDownloadCount = async (boardFileId: number) => {
 // 좋아요 up down
 export const likeBoard = async (boardId: number) => {
   try {
-    await axios.post(`${BASE_URL}/board/${boardId}/like`, getAxiosConfig());
+    await axios.post(
+      `${BASE_URL}/board/${boardId}/like`,
+      null,
+      getAxiosConfig()
+    );
   } catch (err) {
     console.error("좋아요 처리 실패:", err);
     throw err;

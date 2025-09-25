@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,7 +46,7 @@ public class BoardController {
             @Valid @ModelAttribute BoardFormDto boardFormDto,
             BindingResult bindingResult,
             @RequestParam(value = "boardFile", required = false) List<MultipartFile> boardFileList
-//            ,Authentication authentication
+            , Authentication authentication
     ) {
         System.out.println(boardFormDto.getContent());
         // 유효성 검증
@@ -53,10 +55,7 @@ public class BoardController {
         }
 
         try {
-            ///  loginId가 user일때
-            Long boardId = boardService.saveBoard(boardFormDto, boardFileList, "user"
-//                    ,authentication.getName()
-            );
+            Long boardId = boardService.saveBoard(boardFormDto, boardFileList, authentication.getName());
             System.out.println(boardFormDto);
             return ResponseEntity.ok(boardId); // 게시글아이디 반환
         } catch (Exception e) {
@@ -68,20 +67,16 @@ public class BoardController {
 
     // 게시글 상세 조회
     @GetMapping("/board/show/{boardId}")
-    public BoardFormDto getBoardDtl(
-            @PathVariable Long boardId
-//            ,Authentication authentication
+    public BoardFormDto getBoardDtl(@PathVariable Long boardId,
+                                    Authentication authentication
     ) {
         Long memberId = null; // 비회원이면 null
-//        if (authentication != null && authentication.isAuthenticated() &&
-//                !(authentication instanceof AnonymousAuthenticationToken)) {
-        // 로그인한 회원이면 memberId 세팅
-//            Member member = memberRepository.findByLoginId(authentication.getName())
-        String loginId = "user";
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(EntityNotFoundException::new);
-        memberId = member.getId();
-//        }
+        if (authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken)) {
+            Member member = memberRepository.findByLoginId(authentication.getName())
+                    .orElseThrow(EntityNotFoundException::new);
+            memberId = member.getId();
+        }
 
         return boardService.getBoardDtl(boardId, memberId);
     }
@@ -96,20 +91,15 @@ public class BoardController {
 
     // 좋아요
     @PostMapping("/board/{boardId}/like")
-    public void likeBoard(@PathVariable Long boardId
-//            , Authentication authentication
-    ) {
+    public void likeBoard(@PathVariable Long boardId, Authentication authentication) {
         Long memberId = null; // 비회원이면 null
-//        if (authentication != null && authentication.isAuthenticated() &&
-//                !(authentication instanceof AnonymousAuthenticationToken)) {
-        // 로그인한 회원이면 memberId 세팅
-//            Member member = memberRepository.findByLoginId(authentication.getName())
-        String loginId = "user2";
-        Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(EntityNotFoundException::new);
-        memberId = member.getId();
-//        }
-
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+//         로그인한 회원이면 memberId 세팅
+            String loginId = authentication.getName();
+            Member member = memberRepository.findByLoginId(loginId)
+                    .orElseThrow(EntityNotFoundException::new);
+            memberId = member.getId();
+        }
         boardService.likeBoard(boardId, memberId);
     }
 
@@ -119,13 +109,11 @@ public class BoardController {
             @Valid @ModelAttribute BoardFormDto boardFormDto,
             BindingResult bindingResult,
             @RequestParam(value = "boardFile", required = false) List<MultipartFile> boardFileList
-//            Authentication authentication
     ) {
         // 유효성 검증
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("필수 입력값이 누락되었습니다.");
         }
-        System.out.println("파일개수!!!!!!!!!!!!!!!!!!!"+boardFileList.toArray().length);
         try {
             Long boardId = boardService.updateBoard(boardFormDto, boardFileList);
             return ResponseEntity.ok(boardId); // 게시글아이디 반환
