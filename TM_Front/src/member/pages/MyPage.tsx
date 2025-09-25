@@ -56,35 +56,39 @@ export default function MyPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // 1. sessionStorage에서 JWT 토큰을 가져옵니다.
         const token = sessionStorage.getItem("jwt");
 
         if (!token) {
-          // 토큰이 없으면 로그인 페이지로 리다이렉트
           navigate("/login");
           return;
         }
 
-        // 2. 토큰을 Authorization 헤더에 담아 GET 요청을 보냅니다.
         const res = await axios.get(`${BASE_URL}/mypage`, {
           headers: {
-            Authorization: `Bearer ${token}`, // <-- 이 부분을 추가해야 합니다.
+            Authorization: `Bearer ${token}`,
           },
         });
+
         const data = res.data;
         setForm({ ...data, password: "", passwordConfirm: "" });
         setOriginalForm({ ...data, password: "", passwordConfirm: "" });
-        setIsNicknameChecked(true); // 초기 닉네임은 중복 검사된 것으로 간주
-      } catch (err) {
-        alert("회원 정보를 불러오는 중 오류가 발생했습니다.");
+        setIsNicknameChecked(true);
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          const msg =
+            (err.response?.data as string) ??
+            "회원 정보를 불러오는 중 오류가 발생했습니다.";
+          alert(msg);
+        } else {
+          alert("알 수 없는 오류가 발생했습니다.");
+        }
       }
     };
+
     if (loginId) {
       fetchUser();
     }
   }, [loginId, navigate]);
-  //     fetchUser();
-  //   }, []); // 의존성 배열을 비워 한 번만 실행되게 합니다.
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -110,8 +114,15 @@ export default function MyPage() {
         alert("사용 가능한 닉네임입니다.");
         setIsNicknameChecked(true);
       }
-    } catch (err) {
-      alert("닉네임 중복 확인 중 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const msg =
+          (err.response?.data as string) ??
+          "닉네임 중복 확인 중 오류가 발생했습니다.";
+        alert(msg);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
       setIsNicknameChecked(false);
     }
   };
@@ -164,22 +175,16 @@ export default function MyPage() {
       alert("회원 정보가 업데이트 되었습니다.");
       setOriginalForm({ ...form });
       setIsEditing(false);
-    } catch (err) {
-      const msg = err.response?.data || "업데이트 중 오류가 발생했습니다.";
-      alert(msg);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const msg =
+          (err.response?.data as string) ?? "업데이트 중 오류가 발생했습니다.";
+        alert(msg);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
     }
   };
-
-  //     try {
-  //       await axios.put(`${BASE_URL}/mypage/${loginId}`, form, getAxiosConfig());
-  //       alert("회원 정보가 업데이트 되었습니다.");
-  //       setOriginalForm({ ...form });
-  //       setIsEditing(false);
-  //     } catch (err) {
-  //       const msg = err.response?.data || "업데이트 중 오류가 발생했습니다.";
-  //       alert(msg);
-  //     }
-  //   };
 
   return (
     <Box
@@ -192,12 +197,7 @@ export default function MyPage() {
     >
       <Stack spacing={2} sx={{ width: 300 }}>
         <Typography variant="h5">마이페이지</Typography>
-        <TextField
-          label="아이디"
-          name="loginId"
-          value={form.loginId}
-          disabled
-        />
+        <TextField label="아이디" name="loginId" value={form.loginId} disabled />
         <TextField
           label="비밀번호"
           name="password"
@@ -232,7 +232,7 @@ export default function MyPage() {
           />
           {isEditing && (
             <Button onClick={checkDuplicateNickname}>
-              중복 <br></br>확인
+              중복 <br /> 확인
             </Button>
           )}
         </Stack>
@@ -258,12 +258,7 @@ export default function MyPage() {
           disabled={!isEditing}
         />
         <Stack direction="row" spacing={1}>
-          <TextField
-            label="우편번호"
-            name="zipcode"
-            value={form.zipcode}
-            disabled
-          />
+          <TextField label="우편번호" name="zipcode" value={form.zipcode} disabled />
           {isEditing && (
             <Button onClick={() => setIsPostcodeOpen(true)}>검색</Button>
           )}
@@ -304,10 +299,7 @@ export default function MyPage() {
       >
         <DialogTitle>주소 검색</DialogTitle>
         <DialogContent dividers>
-          <DaumPostcode
-            onComplete={handleComplete}
-            style={{ height: "500px" }}
-          />
+          <DaumPostcode onComplete={handleComplete} style={{ height: "500px" }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsPostcodeOpen(false)}>닫기</Button>

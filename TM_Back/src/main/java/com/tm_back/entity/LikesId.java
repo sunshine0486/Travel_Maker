@@ -12,6 +12,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LikesId implements Serializable {
+
     @Column(name = "board_id")
     private Long boardId;
 

@@ -46,6 +46,9 @@ export default function App() {
           <Route path="/board/:id" element={<BoardDtlPage />} />
           <Route path="/board/edit/:id" element={<EditBoardPage />} />
           <Route path="/admin/filesetting" element={<FileSettingPage />} />
+
+          {/* 카테고리 */}
+          <Route path="/board/:category" element={<BoardDtlPage />} />
         </Routes>
       </Container>
     </BrowserRouter>

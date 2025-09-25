@@ -26,7 +26,7 @@ public class SecurityConfig {
                         ((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/signup/**"
-                                ,"/board/show/**","/image/**","/visit"
+                                ,"/board/show/**","/image/**","/visit", "/main/**"
                         ).permitAll()
 //                        .requestMatchers("/admin/**").hasRole("ADMIN") //admin으로 시작하는 경로는 admin role일 경우에만 접근 가능하도록.
                         .anyRequest().authenticated())

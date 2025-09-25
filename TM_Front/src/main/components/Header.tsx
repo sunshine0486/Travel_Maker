@@ -5,14 +5,12 @@ import { useAuthStore } from "../../store";
 export default function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuthStore();
-
   const handleLogoutClick = () => {
     sessionStorage.removeItem("jwt"); // "" 대신 완전히 삭제
     sessionStorage.removeItem("loginId");
     logout();
     navigate("/"); // 로그아웃 후 홈으로 이동 (선택사항)
   };
-
   return (
     <AppBar position="static" sx={{ background: "#151B54", width: "100vw" }}>
       <Toolbar
@@ -30,6 +28,7 @@ export default function Header() {
             src="/travel_maker_miniwhite.png"
             alt="Travel Maker Logo"
             style={{ height: "40px" }}
+            onClick={() => navigate("/")}
           />
         </Box>
         {/* 메뉴 */}
