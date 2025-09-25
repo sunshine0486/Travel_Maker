@@ -3,13 +3,15 @@ package com.tm_back.dto;
 import com.tm_back.constant.Category;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.entity.Board;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BoardDto {
     private Long id;
     private String title;
@@ -17,6 +19,9 @@ public class BoardDto {
     private Category category;
     private Long memberId;
     private Integer views;
+    private Integer likeCount; // 좋아요수
+    private Integer commentCount; // 댓글 수
+    private String nickname; // 닉네임 추가
     private LocalDateTime regTime;
     private LocalDateTime updateTime;
     private DeleteStatus delYn;

@@ -1,8 +1,8 @@
-import { List, ListItem, ListItemText, Typography } from "@mui/material";
+import { List, ListItem, ListItemText } from "@mui/material";
 
 interface Post {
+  rank: number;
   title: string;
-  views: string;
 }
 
 interface Props {
@@ -12,12 +12,9 @@ interface Props {
 export default function PopularPostList({ posts }: Props) {
   return (
     <List dense>
-      {posts.map((post, idx) => (
-        <ListItem key={idx} divider>
-          <ListItemText 
-            primary={post.title}
-            secondary={<Typography variant="caption">{post.views} 조회</Typography>}
-          />
+      {posts.map((post) => (
+        <ListItem key={post.rank} divider>
+          <ListItemText primary={`${post.rank}. ${post.title}`} />
         </ListItem>
       ))}
     </List>

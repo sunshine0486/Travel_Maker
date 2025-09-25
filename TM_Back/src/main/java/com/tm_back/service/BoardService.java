@@ -1,5 +1,8 @@
 package com.tm_back.service;
 
+import com.tm_back.constant.Category;
+import com.tm_back.constant.DeleteStatus;
+import com.tm_back.dto.BoardDto;
 import com.tm_back.dto.BoardFileDto;
 import com.tm_back.dto.BoardFormDto;
 import com.tm_back.entity.*;
@@ -63,6 +66,9 @@ public class BoardService {
         // board갖고오기
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
 
+        // 조회수 +1
+//        board.setViews(board.getViews() + 1);
+
         // memberId가 이 boardId에 좋아요를 했는지?
         boolean isLiked = false; // 비회원이면
         if (memberId != null) { //회원일경우
@@ -78,6 +84,11 @@ public class BoardService {
         boardFormDto.setBoardFileDtoList(boardFileDtoList);
         boardFormDto.setIsLiked(isLiked); // 좋아요 여부
         boardFormDto.setLikeCount(likeCount); // 좋아요 개수 세팅
+        if(board.getMember().getId().equals(memberId)){
+            boardFormDto.setCanEdit(true);
+            boardFormDto.setCanDel(true);
+        }
+        System.out.println("--------------------------"+boardFormDto);
         return boardFormDto;
     }
 
@@ -148,22 +159,46 @@ public class BoardService {
         return board.getId();
     }
 
-    public Long deleteBoard(Long boardId) throws Exception {
+
+    public List<BoardDto> getBoardList(Category category) {
+        // 카테고리별 조회인데 삭제여부가 N 인것만 출력
+        List<Board> boardList = boardRepository.findByCategoryAndDelYn(category, DeleteStatus.N);
+
+        List<BoardDto> boardDtoList = new ArrayList<>();
+        for (Board board : boardList) {
+            BoardDto boardDto = BoardDto.builder()
+                    .id(board.getId())
+                    .category(board.getCategory())
+                    .title(board.getTitle())
+///                    .commentCount(board)
+                    .nickname(board.getMember().getNickname())
+                    .views(board.getViews())
+                    .likeCount(likesRepository.countByBoardId(board.getId()))
+                    .regTime(board.getRegTime())
+                    .build();
+            boardDtoList.add(boardDto);
+        }
+        return boardDtoList;
+    }
+
+    public Long deleteBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
+        board.setDelYn(DeleteStatus.Y);
+        return boardId;
+    }
+
+    public Long restoreBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
+        board.setDelYn(DeleteStatus.N);
+        return boardId;
+    }
+
+    public Long increaseViewCount(Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(EntityNotFoundException::new);
-
-        // BoardImg 삭제 (ID 기준)
-        List<BoardFile> files = boardFileRepository.findByBoardIdOrderByIdAsc(boardId);
-        for (BoardFile file : files) {
-            if (file.getFileName() != null) {
-                boardFileService.deleteFile(boardImgLocation + "/" + file.getFileName());
-            }
-            boardFileRepository.delete(file);
-        }
-
-        // Board 삭제
-        boardRepository.deleteById(boardId);
-
+        // 조회수 +1
+        board.setViews(board.getViews() + 1);
+        System.out.println(board);
         return boardId;
     }
 }

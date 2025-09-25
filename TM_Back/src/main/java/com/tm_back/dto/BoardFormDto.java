@@ -42,7 +42,10 @@ public class BoardFormDto {
     private Integer views;
     private LocalDateTime updateTime;
     private Boolean isLiked; //어떤 회원이 불러온 게시글에 좋아요를 했는지 여부
-    private Integer likeCount; // 게시그의 좋아요 개수
+    private Integer likeCount; // 게시글의 좋아요 개수
+    private Boolean canEdit; //작성자면 수정가능
+    private Boolean canDel; //작성자 및 관리자면 삭제가능
+    private DeleteStatus delYn; // 삭제면 복원버튼 나오게
 
     // dto -> entity (게시글 첫 작성시)
     public Board toEntity(Member member) {

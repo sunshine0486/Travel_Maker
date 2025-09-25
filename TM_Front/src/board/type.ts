@@ -11,7 +11,9 @@ export type Board = {
   hashTag?: string; // ["태그1", "태그2"]
   likeCount: number;
   isLiked: boolean;
-  // 댓글 타입 추가
+  canEdit: boolean;
+  canDel: boolean;
+  delYn: "Y" | "N";
 };
 
 // 댓글 타입 추가해야함
@@ -36,4 +38,14 @@ export type FileSettingDto = {
   maxUploadCnt: number;
   fileMaxUploadSize: number; // byte 단위
   allowedExtension: string;
+};
+
+export type BoardList = {
+  id?: number;
+  title: string;
+  commentCount: number;
+  nickname: string;
+  views: number;
+  likeCount: number;
+  regTime: string;
 };

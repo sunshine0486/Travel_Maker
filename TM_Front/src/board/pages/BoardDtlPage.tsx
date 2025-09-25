@@ -18,6 +18,7 @@ import {
   getBoardDtl,
   increaseDownloadCount,
   likeBoard,
+  restoreBoard,
 } from "../api/boardApi";
 import { formatDateTime, formatSize } from "../../ts/format";
 import { CATEGORIES_MAP } from "../../ts/category";
@@ -41,6 +42,9 @@ export default function BoardDtlPage() {
     hashTag: "",
     likeCount: 0,
     isLiked: false,
+    canEdit: false,
+    canDel: false,
+    delYn: "N",
   });
 
   const loadBoardData = () => {
@@ -51,7 +55,6 @@ export default function BoardDtlPage() {
     loadBoardData();
   }, [boardId]);
 
-  console.log(isAuthenticated);
   // 좋아요 클릭
   const handleLikeClick = async () => {
     // 비회원 처리: 좋아요 불가, 로그인 페이지 이동
@@ -77,11 +80,12 @@ export default function BoardDtlPage() {
     if (confirm(`${id}번 데이터를 삭제하시겠습니까?`)) {
       deleteBoard(id)
         .then(() => {
-          navigate(`/board/${data.category}`);
+          navigate(`/board/show/${data.category}`);
         })
         .catch((err) => console.log(err));
     }
   };
+  console.log(data.delYn);
 
   return (
     <Box sx={{ mx: "auto", p: 3 }}>
@@ -94,7 +98,7 @@ export default function BoardDtlPage() {
             sx={{ textAlign: "left" }}
           >
             <a
-              href={`/board/${data.category}`}
+              href={`/board/show/${data.category}`}
               style={{ textDecoration: "none" }}
             >
               {CATEGORIES_MAP[data.category?.toUpperCase()] || data.category}{" "}
@@ -143,35 +147,64 @@ export default function BoardDtlPage() {
             {/* 오른쪽: 수정 / 삭제 버튼 */}
             {/* 작성자만 수정 가능 */}
             {/* 작성자 및 관리자만 삭제 가능*/}
+            {/* 게시글 삭제여부 삭제일경우 복원버튼 */}
+            {/* 오른쪽: 수정 / 삭제 / 복원 버튼 */}
             <Stack direction="row" spacing={1} mt={1}>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  navigate(`/board/edit/${boardId}`, {
-                    state: { boardData: data }, // 기존 데이터 전달
-                  });
-                }}
-              >
-                수정
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                color="error"
-                onClick={async () => {
-                  try {
-                    await deleteBoardData(boardId); // void 반환
-                    // 삭제 성공 시 이동
-                    navigate("/board"); // 게시글 목록 페이지로 이동
-                  } catch (error) {
-                    console.error(error);
-                    alert("삭제 중 오류가 발생했습니다.");
-                  }
-                }}
-              >
-                삭제
-              </Button>
+              {data.delYn === "Y" ? (
+                // ✅ 복원 버튼만 표시
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="success"
+                  onClick={async () => {
+                    try {
+                      await restoreBoard(boardId);
+                      alert("게시글이 복원되었습니다.");
+                      // 최신 데이터 다시 불러오기
+                      loadBoardData();
+                    } catch (err) {
+                      console.error("복원 실패", err);
+                      alert("복원 중 오류가 발생했습니다.");
+                    }
+                  }}
+                >
+                  복원
+                </Button>
+              ) : (
+                <>
+                  {data.canEdit && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        navigate(`/board/edit/${boardId}`, {
+                          state: { boardData: data },
+                        });
+                      }}
+                    >
+                      수정
+                    </Button>
+                  )}
+                  {data.canDel && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                      onClick={async () => {
+                        try {
+                          await deleteBoardData(boardId);
+                          navigate(`/board/show/${data.category}`);
+                        } catch (error) {
+                          console.error(error);
+                          alert("삭제 중 오류가 발생했습니다.");
+                        }
+                      }}
+                    >
+                      삭제
+                    </Button>
+                  )}
+                </>
+              )}
             </Stack>
           </Stack>
         </Stack>

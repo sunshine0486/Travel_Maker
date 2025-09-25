@@ -74,7 +74,7 @@ export default function AddBoardPage() {
       setSnackbarOpen(true);
 
       // 필요시 저장 후 이동
-      navigate(`/board/${boardId}`);
+      navigate(`/board/show/dtl/${boardId}`);
     } catch (error) {
       console.error(error);
       // 저장 실패 시 이동하지 않고 오류 메시지 표시

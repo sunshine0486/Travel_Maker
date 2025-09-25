@@ -4,16 +4,14 @@ import com.tm_back.constant.Category;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.dto.BoardFormDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "board")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder
 public class Board extends BaseTimeEntity {
 

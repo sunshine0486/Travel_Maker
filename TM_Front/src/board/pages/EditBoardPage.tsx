@@ -134,7 +134,7 @@ export default function EditBoardPage() {
       setSnackbarMessage("게시글이 성공적으로 수정되었습니다!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      navigate(`/board/${updatedId}`);
+      navigate(`/board/show/dtl/${updatedId}`);
     } catch (error) {
       console.error(error);
       setSnackbarMessage("게시글 수정에 실패했습니다.");

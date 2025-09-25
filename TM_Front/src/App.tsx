@@ -13,6 +13,7 @@ import AddBoardPage from "./board/pages/AddBoardPage";
 import BoardDtlPage from "./board/pages/BoardDtlPage";
 import EditBoardPage from "./board/pages/EditBoardPage";
 import FileSettingPage from "./admin/pages/FileSettingPage";
+import BoardList from "./board/pages/BoardList";
 
 export default function App() {
   const BASE_URL = import.meta.env.VITE_API_URL;
@@ -39,13 +40,20 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="overview" element={<AdminTabs />} />
             <Route path="visitors" element={<VisitorsAdmin />} />
+            <Route path="/admin/filesetting" element={<FileSettingPage />} />
           </Route>
 
           {/* 게시판 상세 */}
           <Route path="/board/new" element={<AddBoardPage />} />
-          <Route path="/board/:id" element={<BoardDtlPage />} />
+          <Route path="/board/show/dtl/:id" element={<BoardDtlPage />} />
           <Route path="/board/edit/:id" element={<EditBoardPage />} />
+<<<<<<< Updated upstream
           <Route path="/admin/filesetting" element={<FileSettingPage />} />
+=======
+
+          {/* 게시판 리스트 */}
+          <Route path="/board/show/:category" element={<BoardList />} />
+>>>>>>> Stashed changes
         </Routes>
       </Container>
     </BrowserRouter>
