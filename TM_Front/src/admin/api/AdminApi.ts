@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Member, Board, Comment, PagedResponse } from "../../type";
+import { BASE_URL } from "../../board/AdminApi";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
 
 // ===== Member API =====
 export const getMembers = async (page = 1): Promise<PagedResponse<Member>> => {
