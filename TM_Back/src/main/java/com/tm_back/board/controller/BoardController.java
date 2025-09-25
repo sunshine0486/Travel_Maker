@@ -118,17 +118,16 @@ public class BoardController {
     public ResponseEntity<?> updateBoard(
             @Valid @ModelAttribute BoardFormDto boardFormDto,
             BindingResult bindingResult,
-            @RequestParam(value = "boardImgFile", required = false) List<MultipartFile> boardImgFileList
+            @RequestParam(value = "boardFile", required = false) List<MultipartFile> boardFileList
 //            Authentication authentication
     ) {
-
         // 유효성 검증
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("필수 입력값이 누락되었습니다.");
         }
-
+        System.out.println("파일개수!!!!!!!!!!!!!!!!!!!"+boardFileList.toArray().length);
         try {
-            Long boardId = boardService.updateBoard(boardFormDto, boardImgFileList);
+            Long boardId = boardService.updateBoard(boardFormDto, boardFileList);
             return ResponseEntity.ok(boardId); // 게시글아이디 반환
         } catch (Exception e) {
             e.printStackTrace();

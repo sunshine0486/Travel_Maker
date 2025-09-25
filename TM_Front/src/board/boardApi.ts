@@ -14,7 +14,7 @@ export const getImgUrl = async (file: File) => {
       "Content-Type": "multipart/form-data",
     },
   });
-  console.log("formdata 전송 완료");
+  console.log("사진 전송 완료");
   return response.data;
 };
 

@@ -112,7 +112,7 @@ public class BoardService {
 
     @Value("${boardFileLocation}")
     private String boardImgLocation;
-    public Long updateBoard(BoardFormDto boardFormDto, List<MultipartFile> boardImgFileList) throws Exception {
+    public Long updateBoard(BoardFormDto boardFormDto, List<MultipartFile> boardFileList) throws Exception {
         // 1. 게시글 엔티티 조회
         Board board = boardRepository.findById(boardFormDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -120,23 +120,27 @@ public class BoardService {
         // 2. 게시글 내용 업데이트
         board.updateBoard(boardFormDto);
 
-        // 3. 기존 이미지 삭제
+        // 3. 기존 첨부파일 삭제
+        // 게시글의 모든 파일 불러오기
         List<BoardFile> oldFiles = boardFileRepository.findByBoardIdOrderByIdAsc(board.getId());
         for (BoardFile oldFile : oldFiles) {
-            // 파일 삭제
+            // 기존에 저장된 파일명이 있을 경우, 실제 서버 저장소에서 삭제
             if (oldFile.getFileName() != null) {
                 boardFileService.deleteFile(boardImgLocation + "/" + oldFile.getFileName());
             }
+            // DB에서도 해당 파일 레코드 삭제
             boardFileRepository.delete(oldFile);
         }
 
         // 4. 새 이미지 저장
-        if (boardImgFileList != null && !boardImgFileList.isEmpty()) {
-            for (MultipartFile newFile : boardImgFileList) {
+        if (boardFileList != null && !boardFileList.isEmpty()) {
+            for (MultipartFile newFile : boardFileList) {
+                System.out.println("새로운 파일!!!!!!!!!!!!!!!"+newFile);
+                // 실제 업로드된 파일만 처리 (null/빈 파일 제외)
                 if (newFile != null && !newFile.isEmpty()) {
-                    BoardFile boardImg = new BoardFile();
-                    boardImg.setBoard(board);
-                    boardFileService.saveBoardFile(boardImg, newFile);
+                    BoardFile boardFile = new BoardFile();
+                    boardFile.setBoard(board);
+                    boardFileService.saveBoardFile(boardFile, newFile);
                 }
             }
         }
