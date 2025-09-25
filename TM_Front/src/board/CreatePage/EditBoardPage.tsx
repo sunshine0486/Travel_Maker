@@ -16,7 +16,7 @@ import { CATEGORIES_MAP } from "../../ts/category";
 import { useRef, useState, useEffect } from "react";
 import { getBoardDtl, updateBoard } from "../boardApi";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Board, FileItem } from "../../ts/type";
+import type { Board, FileItem } from "../type";
 import { QuillEditor, type QuillEditorHandle } from "./QuillEditor";
 
 export default function EditBoardPage() {

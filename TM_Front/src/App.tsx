@@ -3,13 +3,16 @@ import Header from "./main/components/Header";
 import MainPage from "./main/pages/MainPage";
 import AdminTabs from "./admin/pages/AdminTabs";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import BoardPage from "./admin/pages/BoardPage";
 import AdminLayout from "./admin/components/AdminLayout";
 import VisitorsAdmin from "./admin/pages/VisitorsAdmin";
 import { useEffect } from "react";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import MyPageWrapper from "./pages/MyPageWrapper";
+import SignUp from "./member/pages/SignUp";
+import Login from "./member/pages/Login";
+import MyPageWrapper from "./member/pages/MyPageWrapper";
+import AddBoardPage from "./board/CreatePage/AddBoardPage";
+import BoardDtlPage from "./board/DtlPage/BoardDtlPage";
+import EditBoardPage from "./board/CreatePage/EditBoardPage";
+import FileSettingPage from "./board/FileSettingPage";
 
 export default function App() {
   const BASE_URL = import.meta.env.VITE_API_URL;
@@ -40,7 +43,10 @@ export default function App() {
           </Route>
 
           {/* 게시판 상세 */}
-          <Route path="/board/:boardId" element={<BoardPage />} />
+          <Route path="/board/new" element={<AddBoardPage />} />
+          <Route path="/board/:id" element={<BoardDtlPage />} />
+          <Route path="/board/edit/:id" element={<EditBoardPage />} />
+          <Route path="/admin/filesetting" element={<FileSettingPage />} />
         </Routes>
       </Container>
     </BrowserRouter>

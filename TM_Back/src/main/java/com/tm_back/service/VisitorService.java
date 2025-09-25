@@ -1,7 +1,7 @@
 package com.tm_back.service;
 
 import com.tm_back.entity.VisitorCnt;
-import com.tm_back.entity.repository.VisitorCntRepository;
+import com.tm_back.repository.VisitorCntRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

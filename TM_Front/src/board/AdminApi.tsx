@@ -1,12 +1,14 @@
 import axios from "axios";
-import type { FileSettingDto } from "../ts/type";
+import type { FileSettingDto } from "./type";
+import { getAxiosConfig } from "../member/api/loginApi";
 export const BASE_URL = import.meta.env.VITE_API_URL;
 
 // 파일 설정 불러오기
 export const getFileSetting = async (): Promise<FileSettingDto> => {
   try {
     const response = await axios.get<FileSettingDto>(
-      `${BASE_URL}/admin/filesetting`
+      `${BASE_URL}/admin/filesetting`,
+      getAxiosConfig()
     );
     return response.data;
   } catch (err) {
@@ -20,7 +22,11 @@ export const updateFileSetting = async (
   body: FileSettingDto
 ): Promise<boolean> => {
   try {
-    const res = await axios.patch(`${BASE_URL}/admin/filesetting`, body);
+    const res = await axios.patch(
+      `${BASE_URL}/admin/filesetting`,
+      body,
+      getAxiosConfig()
+    );
     console.log("파일 설정 저장 성공:", res.data);
     return true;
   } catch (err) {

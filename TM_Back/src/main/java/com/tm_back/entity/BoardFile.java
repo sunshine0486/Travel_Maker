@@ -5,10 +5,11 @@ import lombok.*;
 
 @Entity
 @Table(name = "board_file")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @Builder
 public class BoardFile {
 
@@ -17,20 +18,22 @@ public class BoardFile {
     @Column(name = "board_file_id")
     private Long id;
 
-    @Column(nullable = false, length = 255)
-    private String fileName;
+    @Column(nullable = false)
+    private String fileName; //이미지 파일명
 
-    @Column(nullable = false, length = 255)
-    private String fileUrl;
+    @Column(nullable = false)
+    private String fileUrl; // 이미지 조회 경로
 
-    @Column(nullable = false, length = 255)
-    private String oriFileName;
+    @Column(nullable = false)
+    private String oriFileName; //원본 이미지 파일명
 
-    private Long downCnt;
+    @Column(nullable = false)
+    private Integer downCnt; // 다운로드 횟수
 
-    private Long fileSize;
+    @Column(nullable = false)
+    private Long fileSize; // 파일 용량
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id")
     private Board board;
 }

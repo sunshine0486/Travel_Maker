@@ -2,7 +2,6 @@ package com.tm_back.service;
 
 import com.tm_back.dto.CommentResponseDto;
 import com.tm_back.dto.CreateCommentDto;
-import com.tm_back.dto.PagedResponse;
 import com.tm_back.dto.UpdateCommentDto;
 
 import java.util.List;

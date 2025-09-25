@@ -1,11 +1,9 @@
 package com.tm_back.controller;
 
-import com.tm_back.dto.MemberResponseDto;
-import com.tm_back.dto.BoardResponseDto;
-import com.tm_back.dto.CommentResponseDto;
-import com.tm_back.dto.PagedResponse;
+import com.tm_back.dto.*;
 import com.tm_back.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,15 +15,15 @@ public class AdminController {
 
     // ===== Member =====
     @GetMapping("/members")
-    public PagedResponse<MemberResponseDto> getMembers(@RequestParam(defaultValue = "0") int page,
+    public PagedResponse<MemberDto> getMembers(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
         return adminService.getMembers(page, size);
     }
 
     // ===== Board =====
     @GetMapping("/boards")
-    public PagedResponse<BoardResponseDto> getBoards(@RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "10") int size) {
+    public PagedResponse<BoardDto> getBoards(@RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size) {
         return adminService.getBoards(page, size);
     }
 
@@ -45,4 +43,19 @@ public class AdminController {
     public void softDeleteComment(@PathVariable Long id) {
         adminService.softDeleteComment(id);
     }
+
+//    유안코드
+    @GetMapping("/filesetting")
+    public ResponseEntity<?> getFileSetting(){
+
+        return ResponseEntity.ok(adminService.getFileSetting());
+    }
+
+    @PatchMapping("/filesetting")
+    public ResponseEntity<FileSettingDto> updateFileSetting(
+            @RequestBody FileSettingDto dto) {
+        FileSettingDto updated = adminService.updateSetting(dto);
+        return ResponseEntity.ok(updated);
+    }
 }
+

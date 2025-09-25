@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Comment, Favorite, FavoriteBorderOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import type { Board } from "../../ts/type";
+import type { Board } from "../type";
 import {
   deleteBoard,
   getBoardDtl,
@@ -22,7 +22,7 @@ import {
 import { formatDateTime, formatSize } from "../../ts/format";
 import { CATEGORIES_MAP } from "../../ts/category";
 
-export default function BoardDetailPage() {
+export default function BoardDtlPage() {
   const { id } = useParams<{ id: string }>();
   const boardId = Number(id);
   const navigate = useNavigate();

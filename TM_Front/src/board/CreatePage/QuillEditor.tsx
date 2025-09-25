@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import "./QuillEditor.css";
-import { type FileItem } from "../../ts/type";
+import { type FileItem } from "../type";
 import { formatSize } from "../../ts/format";
 import { getFileSetting } from "../AdminApi";
 

@@ -1,43 +1,54 @@
 package com.tm_back.entity;
 
-import com.tm_back.constant.DeleteStatus;
 import com.tm_back.constant.Category;
+import com.tm_back.constant.DeleteStatus;
+import com.tm_back.dto.BoardFormDto;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Board")
-@Getter
-@Setter
+@Table(name = "board")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Builder
 public class Board extends BaseTimeEntity {
+
     @Id
-    @Column(name = "board_id")
+    @Column(name="board_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Category category;  // 여행1, 여행2
+    @Column(nullable = false)
+    private Category category;
 
     @Column(nullable = false)
-    @Builder.Default
-    private Long views = 0L;
+    private Integer views; //초기값 0
 
+    private String hashTag; // null 허용
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(name = "del_yn", nullable = false, length = 1)
-    @Builder.Default
-    private DeleteStatus delYn = DeleteStatus.N;
+    private DeleteStatus delYn; // 초기값 N
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;  // 작성자
+    @JoinColumn(name = "member_id")
+    private Member member;
 
+    public void updateBoard(BoardFormDto boardFormDto) {
+        this.category = boardFormDto.getCategory();
+        this.title = boardFormDto.getTitle();
+        this.content = boardFormDto.getContent();
+        this.hashTag = boardFormDto.getHashTag();
+    }
 }

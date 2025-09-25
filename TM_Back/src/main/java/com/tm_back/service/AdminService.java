@@ -1,23 +1,26 @@
 package com.tm_back.service;
 
+import com.tm_back.dto.*;
+import com.tm_back.entity.FileSetting;
+import com.tm_back.repository.FileSettingRepository;
 import com.tm_back.constant.DeleteStatus;
-import com.tm_back.dto.BoardResponseDto;
-import com.tm_back.dto.CommentResponseDto;
-import com.tm_back.dto.MemberResponseDto;
-import com.tm_back.dto.PagedResponse;
 import com.tm_back.entity.Comment;
-import com.tm_back.entity.repository.BoardRepository;
-import com.tm_back.entity.repository.CommentRepository;
-import com.tm_back.entity.repository.MemberRepository;
+import com.tm_back.repository.BoardRepository;
+import com.tm_back.repository.CommentRepository;
+import com.tm_back.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AdminService {
 
@@ -26,17 +29,17 @@ public class AdminService {
     private final CommentRepository commentRepository;
 
     // ===== Member =====
-    public PagedResponse<MemberResponseDto> getMembers(int page, int size) {
+    public PagedResponse<MemberDto> getMembers(int page, int size) {
         var pageable = PageRequest.of(page, size);
         var result = memberRepository.findAll(pageable);
-        return PagedResponse.of(result, MemberResponseDto::from);
+        return PagedResponse.of(result, MemberDto::from);
     }
 
     // ===== Board =====
-    public PagedResponse<BoardResponseDto> getBoards(int page, int size) {
+    public PagedResponse<BoardDto> getBoards(int page, int size) {
         var pageable = PageRequest.of(page, size);
         var result = boardRepository.findAll(pageable);
-        return PagedResponse.of(result, BoardResponseDto::from);
+        return PagedResponse.of(result, BoardDto::from);
     }
 
     public void deleteBoard(Long id) {
@@ -86,5 +89,27 @@ public class AdminService {
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
         comment.setDelYn(DeleteStatus.Y); // ✅ enum 값 사용
         commentRepository.save(comment);
+    }
+
+    //    유안코드
+    private final FileSettingRepository fileSettingRepository;
+    private static ModelMapper modelMapper = new ModelMapper();
+
+    public FileSettingDto getFileSetting() {
+        FileSetting fileSetting = fileSettingRepository.findById(1L).orElseThrow(EntityNotFoundException::new);
+        FileSettingDto fileSettingDto = modelMapper.map(fileSetting, FileSettingDto.class);
+        return fileSettingDto;
+    }
+
+    public FileSettingDto updateSetting(FileSettingDto dto) {
+        FileSetting fileSetting = fileSettingRepository.findById(1L).orElseThrow(EntityNotFoundException::new);
+        modelMapper.map(dto, fileSetting);
+
+        // 저장
+        FileSetting saved = fileSettingRepository.save(fileSetting);
+
+        // Entity → DTO
+        return modelMapper.map(saved, FileSettingDto.class);
+
     }
 }

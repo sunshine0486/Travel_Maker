@@ -8,7 +8,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import type { FileSettingDto } from "../ts/type";
+import type { FileSettingDto } from "./type";
 import { getFileSetting, updateFileSetting } from "./AdminApi";
 
 export default function FileSettingPage() {
