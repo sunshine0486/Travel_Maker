@@ -66,7 +66,7 @@ export default function VisitorsAdmin() {
               width={70}
             />
             <Tooltip />
-            <Bar dataKey="count" fill="#8884d8" />
+            <Bar dataKey="count" fill="#151B54" />
           </BarChart>
         </ResponsiveContainer>
       </Box>

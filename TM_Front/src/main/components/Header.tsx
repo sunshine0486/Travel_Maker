@@ -4,19 +4,23 @@ export default function Header() {
   return (
     <AppBar
     position="static"
-    sx={{ background: "linear-gradient(90deg, #4f46e5, #3b82f6)", width: "100vw", }}
+    // sx={{ background: "linear-gradient(90deg, #4f46e5, #3b82f6)", width: "100vw", }}
+    sx={{ background: "#151B54", width: "100vw" }}
   >
     <Toolbar
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        // width: "100%",      // ✅ 화면 전체에 맞게 확장
-        // margin: "0 auto",   // ✅ (선택) 가운데 정렬
+        alignItems: "center", // ✅ 수직 가운데 정렬
       }}
     >
-      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-        여행 게시판
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <img 
+          src="/travel_maker_miniwhite.png" 
+          alt="Travel Maker Logo" 
+          style={{ height: "40px" }} 
+        />
+      </Box>
 
       <Box sx={{ display: "flex", gap: 3 }}>
         <Button color="inherit">홈</Button>
@@ -35,6 +39,7 @@ export default function Header() {
         </Button>
       </Box>
     </Toolbar>
+
   </AppBar>
 
   );
