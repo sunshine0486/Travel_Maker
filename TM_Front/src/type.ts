@@ -22,7 +22,7 @@ export interface Member {
 
 export interface Board {
   id: number;
-  category: "TIP" | "REVIEW" | "QNA" | "NOTICE"
+  category: "TIP" | "REVIEW" | "QNA" | "NOTICE";
   title: string;
   author: string;
   createdAt: string;
@@ -41,5 +41,4 @@ export interface PagedResponse<T> {
   totalElements: number;
 }
 
-
-
+export type User = { loginId: string; password: string };
