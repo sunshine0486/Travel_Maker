@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
-import { getComments, deleteComment } from "../api/adminApi";
+import { getComments, deleteComment } from "../api/AdminApi";
 import type { Comment } from "../../type";
 import SearchModal from "../components/SearchModal";
 import { useNavigate } from "react-router-dom";

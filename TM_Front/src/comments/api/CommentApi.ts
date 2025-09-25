@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Comment, CreateCommentRequest } from "../../type";
+import { getAxiosConfig } from "../../member/api/loginApi";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -44,7 +45,8 @@ export const getComment = async (boardId: number): Promise<Comment[]> => {
 export const createComment = async (
   comment: CreateCommentRequest
 ): Promise<Comment> => {
-  const res = await axios.post<Comment>(`${BASE_URL}/comment/new`, comment);
+  const res = await axios.post<Comment>(`${BASE_URL}/comment/new`, comment ,
+      getAxiosConfig());
   return normalizeComment(res.data);
 };
 

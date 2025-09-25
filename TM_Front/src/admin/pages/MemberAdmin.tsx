@@ -12,9 +12,9 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
-import { getMembers } from "../api/adminApi";
 import type { Member } from "../../type";
 import SearchModal from "../components/SearchModal";
+import { getMembers } from "../api/AdminApi";
 
 export default function MemberAdmin() {
   const [members, setMembers] = useState<Member[]>([]);
