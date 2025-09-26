@@ -44,6 +44,7 @@ public class AdminController {
     public PagedResponse<MemberDto> getMembers(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
         checkAdmin();
+
         return adminService.getMembers(page, size);
     }
 

@@ -1,6 +1,7 @@
 package com.tm_back.controller;
 
 import com.tm_back.dto.LoginDto;
+import com.tm_back.dto.MemberDto;
 import com.tm_back.dto.MyPageDto;
 import com.tm_back.entity.Member;
 import com.tm_back.service.MemberService;
@@ -33,30 +34,45 @@ public class MyPageController {
     }
 
     // 2. 회원 정보 조회
+//    @GetMapping
+//    public ResponseEntity<MyPageDto> getMemberInfo(Authentication authentication) {
+//        Member member = myPageService.getMemberByLoginId(authentication.getName());
+//
+//        // ✅ Base64 복호화
+//        String decodedBirth = new String(Base64.getDecoder().decode(member.getBirth()));
+//        String decodedPhone = new String(Base64.getDecoder().decode(member.getPhoneNumber()));
+//        String decodedZipcode = new String(Base64.getDecoder().decode(member.getZipcode()));
+//        String decodedAddress = new String(Base64.getDecoder().decode(member.getAddress()));
+//        String decodedDetail = new String(Base64.getDecoder().decode(member.getAddressDetail()));
+//
+//        // ✅ DTO로 변환
+//        MyPageDto myPageDto = new MyPageDto();
+//        myPageDto.setNickname(member.getNickname());
+//        myPageDto.setEmail(member.getEmail());
+//        myPageDto.setBirth(decodedBirth);
+//        myPageDto.setPhoneNumber(decodedPhone);
+//        myPageDto.setZipcode(decodedZipcode);
+//        myPageDto.setAddress(decodedAddress);
+//        myPageDto.setAddressDetail(decodedDetail);
+//        System.out.println(myPageDto);
+//
+//        return ResponseEntity.ok(myPageDto);
+//    }
     @GetMapping
-    public ResponseEntity<MyPageDto> getMemberInfo(Authentication authentication) {
+    public ResponseEntity<MemberDto> getMemberInfo(Authentication authentication) {
+        // 현재 로그인한 사용자 조회
         Member member = myPageService.getMemberByLoginId(authentication.getName());
 
-        // ✅ Base64 복호화
-        String decodedBirth = new String(Base64.getDecoder().decode(member.getBirth()));
-        String decodedPhone = new String(Base64.getDecoder().decode(member.getPhoneNumber()));
-        String decodedZipcode = new String(Base64.getDecoder().decode(member.getZipcode()));
-        String decodedAddress = new String(Base64.getDecoder().decode(member.getAddress()));
-        String decodedDetail = new String(Base64.getDecoder().decode(member.getAddressDetail()));
+        // ✅ MemberDto.from에서 Base64 복호화 처리
+        MemberDto dto = MemberDto.from(member);
 
-        // ✅ DTO로 변환
-        MyPageDto myPageDto = new MyPageDto();
-        myPageDto.setNickname(member.getNickname());
-        myPageDto.setEmail(member.getEmail());
-        myPageDto.setBirth(decodedBirth);
-        myPageDto.setPhoneNumber(decodedPhone);
-        myPageDto.setZipcode(decodedZipcode);
-        myPageDto.setAddress(decodedAddress);
-        myPageDto.setAddressDetail(decodedDetail);
-        System.out.println(myPageDto);
+        // 비밀번호는 반환하지 않도록 null 처리(보안)
+        dto.setPassword(null);
 
-        return ResponseEntity.ok(myPageDto);
+        System.out.println(dto);
+        return ResponseEntity.ok(dto);
     }
+
 
     // 3. 회원 정보 수정
     @PutMapping("/{loginId}")

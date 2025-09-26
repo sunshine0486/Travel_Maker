@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.Base64;
+
 @Getter
 @Setter
 public class MemberDto
@@ -50,12 +52,23 @@ public class MemberDto
         dto.setLoginId(member.getLoginId());
         dto.setNickname(member.getNickname());
         dto.setEmail(member.getEmail());
-        dto.setBirth(member.getBirth());
-        dto.setPhoneNumber(member.getPhoneNumber());
-        dto.setZipcode(member.getZipcode());
-        dto.setAddress(member.getAddress());
-        dto.setAddressDetail(member.getAddressDetail());
-        dto.setRole(member.getRole()); // ENUM → String
+        dto.setRole(member.getRole());
+
+        // ✅ Base64 복호화 적용
+        dto.setBirth(decode(member.getBirth()));
+        dto.setPhoneNumber(decode(member.getPhoneNumber()));
+        dto.setZipcode(decode(member.getZipcode()));
+        dto.setAddress(decode(member.getAddress()));
+        dto.setAddressDetail(decode(member.getAddressDetail()));
+
+        // 비밀번호는 복호화 안 함(보안상 평문 반환 금지)
+        dto.setPassword(member.getPassword());
+
         return dto;
+    }
+
+    private static String decode(String encoded) {
+        if (encoded == null) return null;
+        return new String(Base64.getDecoder().decode(encoded));
     }
 }
