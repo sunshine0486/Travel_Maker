@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import MyPage from "./MyPage"; // 기존 마이페이지 컴포넌트
 import { useAuthStore } from "../../store"; // zustand에서 loginId 가져오기
-import { getAxiosConfig } from "../api/loginApi";
+// import { getAxiosConfig } from "../api/loginApi";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -23,15 +23,25 @@ export default function MyPageWrapper() {
 
   const handleVerify = async () => {
     try {
-      // 요청 본문(body)에 데이터 객체를 직접 전달합니다.
-      // URL 파라미터 방식을 제거합니다.
+      const token = sessionStorage.getItem("jwt");
+
+      if (!token) {
+        setError("인증 토큰이 없습니다. 다시 로그인해주세요.");
+        return;
+      }
+
       await axios.post(
         `${BASE_URL}/mypage/verify-password`,
         {
           loginId,
           password,
         },
-        getAxiosConfig()
+        // ✅ 토큰을 헤더에 직접 추가합니다.
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setVerified(true);
     } catch (err) {
@@ -39,16 +49,23 @@ export default function MyPageWrapper() {
     }
   };
 
-  //   const handleVerify = async () => {
-  //     try {
-  //       await axios.post(`${BASE_URL}/mypage/verify-password`, null, {
-  //         params: { loginId, password },
-  //       });
-  //       setVerified(true);
-  //     } catch (err) {
-  //       setError("비밀번호가 틀렸습니다.");
-  //     }
-  //   };
+  // const handleVerify = async () => {
+  //   try {
+  //     // 요청 본문(body)에 데이터 객체를 직접 전달합니다.
+  //     // URL 파라미터 방식을 제거합니다.
+  //     await axios.post(
+  //       `${BASE_URL}/mypage/verify-password`,
+  //       {
+  //         loginId,
+  //         password,
+  //       },
+  //       getAxiosConfig()
+  //     );
+  //     setVerified(true);
+  //   } catch (err) {
+  //     setError("비밀번호가 틀렸습니다.");
+  //   }
+  // };
 
   if (!verified) {
     return (

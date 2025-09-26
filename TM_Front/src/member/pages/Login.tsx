@@ -1,10 +1,13 @@
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { getAuthToken } from "../api/loginApi";
+// import { getAuthToken } from "../api/loginApi";
 import type { User } from "../../type";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Login() {
   const navigate = useNavigate();
@@ -24,28 +27,63 @@ export default function Login() {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = () => {
-    getAuthToken(user)
-      .then((token) => {
-        if (token != null) {
-          // 1. JWT 토큰을 sessionStorage에 저장
-          sessionStorage.setItem("jwt", token);
+  const handleLogin = async () => {
+    try {
+      // ✅ getAuthToken 대신 axios.post를 직접 사용
+      const res = await axios.post(`${BASE_URL}/login`, user);
 
-          const decoded = jwtDecode<{ sub: string }>(token);
-          const loginId = decoded.sub;
+      // ✅ 응답 본문(response.data)에서 토큰과 admin 정보를 모두 추출
+      const { jwtToken, admin } = res.data;
+      console.log("admin", admin);
 
-          // 2. 로그인 아이디(loginId)도 sessionStorage에 함께 저장 ✅
-          sessionStorage.setItem("loginId", loginId);
+      // ✅ 여기에 아래 코드를 추가하세요.
+      console.log("백엔드에서 받은 admin 값:", admin);
 
-          login(loginId); // ✅ 인자 넘김
-          navigate("/");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setToastMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
-      });
+      if (jwtToken != null) {
+        // 1. JWT 토큰을 sessionStorage에 저장
+        sessionStorage.setItem("jwt", jwtToken);
+
+        const decoded = jwtDecode<{ sub: string }>(jwtToken);
+        const loginId = decoded.sub;
+
+        // 2. 로그인 아이디(loginId)도 sessionStorage에 함께 저장
+        sessionStorage.setItem("loginId", loginId);
+
+        // ✅ 여기에도 아래 코드를 추가하세요.
+        console.log("Zustand에 전달하는 admin 값:", admin);
+
+        // 3. zustand의 login 함수에 loginId와 admin을 모두 넘겨줌
+        login(loginId, admin); // ✅ admin 인자 추가
+
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err);
+      setToastMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
   };
+
+  //   getAuthToken(user)
+  //     .then((token) => {
+  //       if (token != null) {
+  //         // 1. JWT 토큰을 sessionStorage에 저장
+  //         sessionStorage.setItem("jwt", token);
+
+  //         const decoded = jwtDecode<{ sub: string }>(token);
+  //         const loginId = decoded.sub;
+
+  //         // 2. 로그인 아이디(loginId)도 sessionStorage에 함께 저장 ✅
+  //         sessionStorage.setItem("loginId", loginId);
+
+  //         login(loginId); // ✅ 인자 넘김
+  //         navigate("/");
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       setToastMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
+  //     });
+  // };
 
   return (
     <>
