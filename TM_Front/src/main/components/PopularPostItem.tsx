@@ -12,7 +12,7 @@ export default function PopularPostItem({ rank, title, id }: Props) {
 
   return (
     <ListItem divider disablePadding>
-      <ListItemButton onClick={() => navigate(`/board/show/dtl${id}`)}>
+      <ListItemButton onClick={() => navigate(`/board/show/dtl/${id}`)}>
         <ListItemText primary={`${rank}. ${title}`} />
       </ListItemButton>
     </ListItem>
