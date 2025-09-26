@@ -1,4 +1,12 @@
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 // import { getAuthToken } from "../api/loginApi";
 import type { User } from "../../type";
@@ -6,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -13,6 +22,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   const { login } = useAuthStore();
+
+  // 👁️‍🗨️ 비밀번호 표시 토글 상태
+  const [showPassword, setShowPassword] = useState(false);
 
   //   const [toastOpen, setToastOpen] = useState(false);
 
@@ -90,9 +102,10 @@ export default function Login() {
       <Box
         display="flex"
         flexDirection="column"
-        justifyContent="center"
+        justifyContent="flex-start"
         alignItems="center"
         height="100vh" // 뷰포트 전체 높이를 사용해 화면 중앙에 위치시킴
+        pt={40} // 상단 여백 추가
       >
         {/* Stack 대신 Box를 사용한 레이아웃 */}
         {/* <Box sx={{ width: 300 }}> */}
@@ -151,7 +164,19 @@ export default function Login() {
             label="PW"
             name="password"
             onChange={handleChange}
-            type="password"
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button color="primary" onClick={handleLogin}>
             로그인

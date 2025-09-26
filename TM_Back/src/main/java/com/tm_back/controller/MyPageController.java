@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
+
 @RestController
 @RequestMapping("/mypage")
 @RequiredArgsConstructor
@@ -32,9 +34,28 @@ public class MyPageController {
 
     // 2. 회원 정보 조회
     @GetMapping
-    public ResponseEntity<Member> getMemberInfo(Authentication authentication) {
+    public ResponseEntity<MyPageDto> getMemberInfo(Authentication authentication) {
         Member member = myPageService.getMemberByLoginId(authentication.getName());
-        return ResponseEntity.ok(member);
+
+        // ✅ Base64 복호화
+        String decodedBirth = new String(Base64.getDecoder().decode(member.getBirth()));
+        String decodedPhone = new String(Base64.getDecoder().decode(member.getPhoneNumber()));
+        String decodedZipcode = new String(Base64.getDecoder().decode(member.getZipcode()));
+        String decodedAddress = new String(Base64.getDecoder().decode(member.getAddress()));
+        String decodedDetail = new String(Base64.getDecoder().decode(member.getAddressDetail()));
+
+        // ✅ DTO로 변환
+        MyPageDto myPageDto = new MyPageDto();
+        myPageDto.setNickname(member.getNickname());
+        myPageDto.setEmail(member.getEmail());
+        myPageDto.setBirth(decodedBirth);
+        myPageDto.setPhoneNumber(decodedPhone);
+        myPageDto.setZipcode(decodedZipcode);
+        myPageDto.setAddress(decodedAddress);
+        myPageDto.setAddressDetail(decodedDetail);
+        System.out.println(myPageDto);
+
+        return ResponseEntity.ok(myPageDto);
     }
 
     // 3. 회원 정보 수정

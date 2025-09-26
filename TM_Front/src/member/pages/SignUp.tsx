@@ -10,9 +10,12 @@ import {
   DialogContent,
   DialogActions,
   Box,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import DaumPostcode, { type Address } from "react-daum-postcode";
 import axios from "axios";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -33,6 +36,15 @@ export default function SignUp() {
   const navigate = useNavigate();
 
   const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+  const [isLoginIdChecked, setIsLoginIdChecked] = useState(false); // 아이디 중복검사 완료 여부
+  const [isNicknameChecked, setIsNicknameChecked] = useState(false); // 닉네임 중복검사 완료 여부
+  // 👁️‍🗨️ 비밀번호 표시 토글 상태
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
+  const encodeBase64 = (str: string) => {
+    return btoa(unescape(encodeURIComponent(str)));
+  };
 
   /** const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -58,9 +70,6 @@ export default function SignUp() {
     }));
     setIsPostcodeOpen(false); // 주소 검색 창 닫기
   };
-
-  const [isLoginIdChecked, setIsLoginIdChecked] = useState(false); // 아이디 중복검사 완료 여부
-  const [isNicknameChecked, setIsNicknameChecked] = useState(false); // 닉네임 중복검사 완료 여부
 
   const handleSubmit = async () => {
     // 0. 중복검사 여부 확인
@@ -95,16 +104,35 @@ export default function SignUp() {
       return;
     }
 
+    if (form.birth.length != 6) {
+      alert("생년월일은 주민번호 앞자리로 입력해주세요.");
+      return;
+    }
+
+    if (form.phoneNumber.length != 11) {
+      alert("전화번호는 '-' 없이 11자리로 입력해주세요.");
+      return;
+    }
+
     if (form.password.length < 8 || form.password.length > 16) {
       alert("비밀번호는 8자 이상, 16자 이하로 입력해주세요.");
       return;
     }
 
+    const encodedForm = {
+      ...form,
+      birth: encodeBase64(form.birth),
+      phoneNumber: encodeBase64(form.phoneNumber),
+      zipcode: encodeBase64(form.zipcode),
+      address: encodeBase64(form.address),
+      addressDetail: encodeBase64(form.addressDetail),
+    };
+
     // 2. 서버 요청
     const res = await fetch(`${BASE_URL}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(encodedForm),
     });
 
     if (res.status === 409) {
@@ -226,9 +254,21 @@ export default function SignUp() {
             </span>
           }
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={form.password}
           onChange={handleChange}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  edge="end"
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label={
@@ -237,7 +277,7 @@ export default function SignUp() {
             </span>
           }
           name="passwordConfirm"
-          type="password"
+          type={showPasswordConfirm ? "text" : "password"}
           value={form.passwordConfirm}
           onChange={handleChange}
           error={
@@ -250,6 +290,18 @@ export default function SignUp() {
               ? "비밀번호가 일치하지 않습니다"
               : ""
           }
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPasswordConfirm((prev) => !prev)}
+                  edge="end"
+                >
+                  {showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         <Stack direction="row" spacing={1}>

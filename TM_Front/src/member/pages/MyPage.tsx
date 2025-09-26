@@ -10,10 +10,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import DaumPostcode, { type Address } from "react-daum-postcode";
 import axios from "axios";
 import { useAuthStore } from "../../store";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -51,6 +54,9 @@ export default function MyPage() {
   const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
   const { loginId } = useAuthStore();
   const [isNicknameChecked, setIsNicknameChecked] = useState(true);
+  // 👁️‍🗨️ 비밀번호 표시 토글 상태
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   // 페이지 접근 시 유저 정보 불러오기
   useEffect(() => {
@@ -197,19 +203,36 @@ export default function MyPage() {
     >
       <Stack spacing={2} sx={{ width: 300 }}>
         <Typography variant="h5">마이페이지</Typography>
-        <TextField label="아이디" name="loginId" value={form.loginId} disabled />
+        <TextField
+          label="아이디"
+          name="loginId"
+          value={form.loginId}
+          disabled
+        />
         <TextField
           label="비밀번호"
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={form.password}
           onChange={handleChange}
           disabled={!isEditing}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  edge="end"
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="비밀번호 확인"
           name="passwordConfirm"
-          type="password"
+          type={showPasswordConfirm ? "text" : "password"}
           value={form.passwordConfirm}
           onChange={handleChange}
           disabled={!isEditing}
@@ -221,6 +244,18 @@ export default function MyPage() {
               ? "비밀번호가 일치하지 않습니다"
               : ""
           }
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPasswordConfirm((prev) => !prev)}
+                  edge="end"
+                >
+                  {showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <Stack direction="row" spacing={1}>
           <TextField
@@ -258,7 +293,12 @@ export default function MyPage() {
           disabled={!isEditing}
         />
         <Stack direction="row" spacing={1}>
-          <TextField label="우편번호" name="zipcode" value={form.zipcode} disabled />
+          <TextField
+            label="우편번호"
+            name="zipcode"
+            value={form.zipcode}
+            disabled
+          />
           {isEditing && (
             <Button onClick={() => setIsPostcodeOpen(true)}>검색</Button>
           )}
@@ -299,7 +339,10 @@ export default function MyPage() {
       >
         <DialogTitle>주소 검색</DialogTitle>
         <DialogContent dividers>
-          <DaumPostcode onComplete={handleComplete} style={{ height: "500px" }} />
+          <DaumPostcode
+            onComplete={handleComplete}
+            style={{ height: "500px" }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsPostcodeOpen(false)}>닫기</Button>
