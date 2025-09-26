@@ -19,6 +19,7 @@ import SearchModal from "../../admin/components/SearchModal";
 
 export default function BoardList() {
   const [data, setData] = useState<BoardList[]>([]);
+  const [originalData, setOriginalData] = useState<BoardList[]>([]); // 원본 보관
   const [openSearch, setOpenSearch] = useState(false);
   const [sortNewestFirst, setSortNewestFirst] = useState(true);
 
@@ -118,6 +119,8 @@ export default function BoardList() {
     try {
       const boards = await getBoardList(category);
       setData(boards);
+      setOriginalData(boards); // 원본도 저장
+      console.log("boards loaded:", boards);
     } catch (error) {
       console.error("게시글 불러오기 실패:", error);
     }
@@ -139,6 +142,7 @@ export default function BoardList() {
       return sortNewestFirst ? timeA - timeB : timeB - timeA;
     });
     setData(sorted);
+    setPage(1);
   };
 
   return (
@@ -167,32 +171,55 @@ export default function BoardList() {
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => navigate("/board/new")}
+            onClick={() => navigate("/board/new", { state: { category } })}
           >
             글쓰기
           </Button>
         )}
       </Box>
+
       {/* 검색 모달 */}
       <SearchModal
         open={openSearch}
         onClose={() => setOpenSearch(false)}
         onSearch={(field, keyword) => {
-          const filtered = data.filter((b) =>
-            (b[field as keyof BoardList] as string)
+          const keywords = keyword
+            .split(/\s+/) // 띄어쓰기 기준 분리
+            .map((k) => k.trim().toLowerCase())
+            .filter(Boolean);
+
+          const filtered = originalData.filter((b) => {
+            if (field === "hashtags") {
+              if (!Array.isArray(b.hashtags)) return false;
+              const tags = b.hashtags.map((t) =>
+                t.toLowerCase().replace(/^#/, "")
+              );
+              // 🔥 모든 키워드가 포함되어야 함 (AND 조건)
+              return keywords.every((kw) =>
+                tags.some((tag) => tag.includes(kw))
+              );
+            }
+
+            // 일반 필드 검색 (OR 조건 그대로)
+            const value = b[field as keyof BoardList];
+            return value
               ?.toString()
-              .includes(keyword)
-          );
+              .toLowerCase()
+              .includes(keywords[0] ?? "");
+          });
+
           setData(filtered);
+          setPage(1);
         }}
         title="게시판 검색"
         options={[
           { value: "title", label: "제목" },
           { value: "content", label: "본문" },
           { value: "nickname", label: "작성자" },
-          { value: "hastag", label: "해시태그" },
+          { value: "hashtags", label: "해시태그" }, // <-- 정확한 키값
         ]}
       />
+
       {/* DataGrid */}
       <DataGrid
         rows={displayedRows}
@@ -206,6 +233,7 @@ export default function BoardList() {
           },
         }}
       />
+
       {/* 페이징 */}
       <Box mt={2} display="flex" justifyContent="center">
         <Pagination

@@ -124,7 +124,7 @@ export default function CommentAdmin() {
             <TableRow key={c.id}>
               <TableCell>{c.author}</TableCell>
               <TableCell
-                onClick={() => navigate(`/board/${c.boardId}`)}
+                onClick={() => navigate(`/board/show/dtl/${c.boardId}`)}
                 sx={{
                   cursor: "pointer",
                   color: "black",

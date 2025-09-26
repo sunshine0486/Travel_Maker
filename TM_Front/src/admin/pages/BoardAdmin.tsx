@@ -122,7 +122,7 @@ export default function BoardAdmin() {
             <TableRow key={b.id}>
               <TableCell>{b.category}</TableCell>
               <TableCell
-                onClick={() => navigate(`/board/${b.id}`)}
+                onClick={() => navigate(`/board/show/dtl/${b.id}`)}
                 sx={{
                   cursor: "pointer",
                   color: "black",

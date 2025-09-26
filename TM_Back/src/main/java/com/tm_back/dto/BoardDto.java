@@ -6,6 +6,7 @@ import com.tm_back.entity.Board;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,22 +23,27 @@ public class BoardDto {
     private Integer likeCount; // 좋아요수
     private Integer commentCount; // 댓글 수
     private String nickname; // 닉네임 추가
+    private List<String> hashtags; // 해시태그
     private LocalDateTime regTime;
     private LocalDateTime updateTime;
     private DeleteStatus delYn;
 
     public static BoardDto from(Board board) {
-        BoardDto dto = new BoardDto();
-        dto.setId(board.getId());
-        dto.setTitle(board.getTitle());
-        dto.setContent(board.getContent());
-        dto.setCategory(board.getCategory());
-        dto.setMemberId(board.getMember().getId());
-        dto.setViews(board.getViews());
-        dto.setRegTime(board.getRegTime());
-        dto.setUpdateTime(board.getUpdateTime());
-        dto.setDelYn(board.getDelYn());
-        return dto;
-    }
+        List<String> hashtagNames = board.getBoardHashtags().stream()
+                .map(bh -> bh.getHashtag().getHashtagName())
+                .toList();
 
+        return BoardDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .category(board.getCategory())
+                .memberId(board.getMember().getId())
+                .views(board.getViews())
+                .regTime(board.getRegTime())
+                .updateTime(board.getUpdateTime())
+                .delYn(board.getDelYn())
+                .hashtags(hashtagNames)
+                .build();
+    }
 }

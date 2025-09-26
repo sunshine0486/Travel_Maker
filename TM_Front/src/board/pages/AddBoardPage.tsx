@@ -15,11 +15,14 @@ import {
 import { CATEGORIES_MAP } from "../../ts/category";
 import { useRef, useState } from "react";
 import { createBoard } from "../api/boardApi";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { QuillEditor, type QuillEditorHandle } from "../components/QuillEditor";
 
 export default function AddBoardPage() {
-  const [category, setCategory] = useState("");
+  const location = useLocation();
+  const initialCategory =
+    (location.state as { category?: string })?.category ?? "";
+  const [category, setCategory] = useState(initialCategory);
   const [title, setTitle] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -87,7 +90,7 @@ export default function AddBoardPage() {
   return (
     <Box maxWidth="800px" mx="auto" p={3}>
       <Typography variant="h5" component="h2" gutterBottom>
-        게시글 작성
+        <h3>게시글 작성</h3>
       </Typography>
       <Stack spacing={3}>
         {/* 1. 카테고리 */}
