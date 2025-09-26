@@ -46,6 +46,7 @@ export default function BoardDtlPage() {
     canEdit: false,
     canDel: false,
     delYn: "N",
+    commentCount: 0,
   });
 
   const loadBoardData = () => {
@@ -347,15 +348,12 @@ export default function BoardDtlPage() {
         <IconButton color="primary">
           <Comment />
         </IconButton>
-        <Typography variant="body2">댓글</Typography>
+        <Typography variant="body2">댓글 {data.commentCount}</Typography>
       </Box>
 
       {/* 댓글 영역 */}
-      <Box sx={{  }}>
-        <Comments 
-          boardId={boardId} 
-          isAuthenticated ={isAuthenticated}
-        />
+      <Box sx={{}}>
+        <Comments boardId={boardId} isAuthenticated={isAuthenticated} />
       </Box>
     </Box>
   );

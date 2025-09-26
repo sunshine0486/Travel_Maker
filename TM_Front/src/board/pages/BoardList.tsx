@@ -182,34 +182,54 @@ export default function BoardList() {
       <SearchModal
         open={openSearch}
         onClose={() => setOpenSearch(false)}
-        onSearch={(field, keyword) => {
-          const keywords = keyword
-            .split(/\s+/) // 띄어쓰기 기준 분리
-            .map((k) => k.trim().toLowerCase())
-            .filter(Boolean);
+        // onSearch={(field, keyword) => {
+        //   const keywords = keyword
+        //     .split(/\s+/) // 띄어쓰기 기준 분리
+        //     .map((k) => k.trim().toLowerCase())
+        //     .filter(Boolean);
 
-          const filtered = originalData.filter((b) => {
+        //   const filtered = originalData.filter((b) => {
+        //     if (field === "hashtags") {
+        //       if (!Array.isArray(b.hashtags)) return false;
+        //       const tags = b.hashtags.map((t) =>
+        //         t.toLowerCase().replace(/^#/, "")
+        //       );
+        //       // 🔥 모든 키워드가 포함되어야 함 (AND 조건)
+        //       return keywords.every((kw) =>
+        //         tags.some((tag) => tag.includes(kw))
+        //       );
+        //     }
+
+        //     // 일반 필드 검색 (OR 조건 그대로)
+        //     const value = b[field as keyof BoardList];
+        //     return value
+        //       ?.toString()
+        //       .toLowerCase()
+        //       .includes(keywords[0] ?? "");
+        //   });
+
+        //   setData(filtered);
+        //   setPage(1);
+        // }}
+        onSearch={(field, keywords) => {
+          const filtered = data.filter((b) => {
             if (field === "hashtags") {
-              if (!Array.isArray(b.hashtags)) return false;
-              const tags = b.hashtags.map((t) =>
-                t.toLowerCase().replace(/^#/, "")
-              );
-              // 🔥 모든 키워드가 포함되어야 함 (AND 조건)
+              // 모두 포함하는지 확인 (AND 조건)
+              const tags = b.hashtags.map((t) => t.toLowerCase());
               return keywords.every((kw) =>
-                tags.some((tag) => tag.includes(kw))
+                tags.some((tag) =>
+                  tag.includes(kw.replace(/^#/, "").toLowerCase())
+                )
+              );
+            } else {
+              return keywords.every((kw) =>
+                (b[field as keyof BoardList] as string)
+                  ?.toLowerCase()
+                  .includes(kw.toLowerCase())
               );
             }
-
-            // 일반 필드 검색 (OR 조건 그대로)
-            const value = b[field as keyof BoardList];
-            return value
-              ?.toString()
-              .toLowerCase()
-              .includes(keywords[0] ?? "");
           });
-
           setData(filtered);
-          setPage(1);
         }}
         title="게시판 검색"
         options={[

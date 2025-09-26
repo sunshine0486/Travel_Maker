@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Box, Tabs, Tab } from "@mui/material";
+import { Box, Tabs, Tab, Typography } from "@mui/material";
 import axios from "axios";
 import type { AxiosResponse } from "axios";
 import { getAxiosConfig } from "../../member/api/loginApi";
@@ -56,6 +56,9 @@ export default function VisitorsAdmin() {
 
   return (
     <Box p={2}>
+      <Typography color="black" variant="h5" sx={{ flexGrow: 1 }}>
+        <h4>방문자 수 조회</h4>
+      </Typography>
       <Tabs
         value={tab}
         onChange={(_, newValue) => setTab(newValue)}

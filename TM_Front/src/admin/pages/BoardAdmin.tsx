@@ -16,7 +16,8 @@ import SortIcon from "@mui/icons-material/Sort"; // ✅ 누락된 import
 import type { Board } from "../../type";
 import SearchModal from "../components/SearchModal";
 import { useNavigate } from "react-router-dom";
-import { deleteBoard, getBoards } from "../api/AdminApi";
+import { getBoards } from "../api/AdminApi";
+import { deleteBoard } from "../../board/api/boardApi";
 
 export default function BoardAdmin() {
   const [boards, setBoards] = useState<Board[]>([]);

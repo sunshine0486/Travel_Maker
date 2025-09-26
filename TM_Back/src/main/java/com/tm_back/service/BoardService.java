@@ -110,12 +110,15 @@ public class BoardService {
 
         // 게시글의 좋아요 개수 세기
         int likeCount = likesRepository.countByBoardId(boardId);
+        // 댓글 개수
+        int commentCount = commentRepository.countByBoardIdAndDelYn(boardId, DeleteStatus.N);
 
         //formdto로 변환
         BoardFormDto boardFormDto = BoardFormDto.toDto(board);
         boardFormDto.setBoardFileDtoList(boardFileDtoList);
         boardFormDto.setIsLiked(isLiked); // 좋아요 여부
         boardFormDto.setLikeCount(likeCount); // 좋아요 개수 세팅
+        boardFormDto.setCommentCount(commentCount);
         if(board.getMember().getId().equals(memberId)){
             boardFormDto.setCanEdit(true);
             boardFormDto.setCanDel(true);
@@ -252,6 +255,37 @@ public class BoardService {
         return boardDtoList;
     }
 
+    // delYn이 Y인것만 조회
+    public List<BoardDto> getDeletedBoardList() {
+        // 삭제된 게시글만 조회
+        List<Board> deletedBoards = boardRepository.findByDelYn(DeleteStatus.Y);
+
+        List<BoardDto> boardDtoList = new ArrayList<>();
+        for (Board board : deletedBoards) {
+            // 해시태그 추출
+            List<String> hashtagNames = board.getBoardHashtags().stream()
+                    .map(bh -> bh.getHashtag().getHashtagName())
+                    .toList();
+
+            BoardDto boardDto = BoardDto.builder()
+                    .id(board.getId())
+                    .category(board.getCategory())
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .hashtags(hashtagNames)
+                    .nickname(board.getMember().getNickname())
+                    .views(board.getViews())
+                    .likeCount(likesRepository.countByBoardId(board.getId()))
+                    .commentCount(commentRepository.countByBoardId(board.getId()))
+                    .regTime(board.getRegTime())
+                    .build();
+
+            boardDtoList.add(boardDto);
+        }
+        return boardDtoList;
+    }
+
+
 
     public Long deleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
@@ -273,4 +307,27 @@ public class BoardService {
         System.out.println(board);
         return boardId;
     }
+
+
+    // 엑셀 다운하려고 불러오는 전체 삭제 게시글
+    public List<BoardDto> getAllDeletedBoard() {
+        List<Board> boards = boardRepository.findByDelYn(DeleteStatus.Y);
+        return boards.stream()
+                .map(board -> {
+                    List<String> hashtags = board.getBoardHashtags().stream()
+                            .map(bh -> bh.getHashtag().getHashtagName())
+                            .toList();
+                    return BoardDto.builder()
+                            .id(board.getId())
+                            .title(board.getTitle())
+                            .nickname(board.getMember().getNickname())
+                            .views(board.getViews())
+                            .likeCount(likesRepository.countByBoardId(board.getId()))
+                            .regTime(board.getRegTime())
+                            .hashtags(hashtags)
+                            .build();
+                })
+                .toList();
+    }
+
 }

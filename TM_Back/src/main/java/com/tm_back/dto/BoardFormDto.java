@@ -46,6 +46,7 @@ public class BoardFormDto {
     private Boolean canEdit; //작성자면 수정가능
     private Boolean canDel; //작성자 및 관리자면 삭제가능
     private DeleteStatus delYn; // 삭제면 복원버튼 나오게
+    private Integer commentCount; // 댓글 수
 
     // dto -> entity (게시글 첫 작성시)
     public Board toEntity(Member member) {

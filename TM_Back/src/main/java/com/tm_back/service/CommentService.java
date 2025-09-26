@@ -144,12 +144,14 @@ public class CommentService {
         dto.setRegTime(comment.getRegTime());
         dto.setUpdateTime(comment.getUpdateTime());
 
+
         if (comment.getBoard() != null) {
             dto.setBoardId(comment.getBoard().getId());
         }
         if (comment.getMember() != null) {
             dto.setMemberId(comment.getMember().getId());
             dto.setMemberNickname(comment.getMember().getNickname());
+            dto.setLoginId(comment.getMember().getLoginId());
         }
 
         dto.setDelYn(comment.getDelYn() != null ? comment.getDelYn().name() : "N");

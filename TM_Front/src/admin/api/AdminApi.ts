@@ -24,10 +24,6 @@ export const getBoards = async (page = 1): Promise<PagedResponse<Board>> => {
   return res.data;
 };
 
-export const deleteBoard = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/admin/boards/${id}`, getAxiosConfig());
-};
-
 // ===== Comment API =====
 export const getComments = async (
   page = 1
@@ -77,4 +73,23 @@ export const updateFileSetting = async (
     console.error("파일 설정 저장 실패:", err);
     return false;
   }
+};
+
+export const getDeletedBoards = async (
+  page = 1
+): Promise<PagedResponse<Board>> => {
+  const res = await axios.get<PagedResponse<Board>>(
+    `${BASE_URL}/admin/deleted?page=${page - 1}`,
+    getAxiosConfig()
+  );
+  return res.data;
+};
+
+// 전체 삭제 게시글 가져오기 (Excel용)
+export const getAllDeletedBoards = async (): Promise<Board[]> => {
+  const res = await axios.get<Board[]>(
+    `${BASE_URL}/admin/deleted/all`,
+    getAxiosConfig()
+  );
+  return res.data;
 };

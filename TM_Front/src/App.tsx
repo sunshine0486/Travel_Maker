@@ -14,6 +14,7 @@ import BoardDtlPage from "./board/pages/BoardDtlPage";
 import EditBoardPage from "./board/pages/EditBoardPage";
 import FileSettingPage from "./admin/pages/FileSettingPage";
 import BoardList from "./board/pages/BoardList";
+import DeletedBoardAdmin from "./admin/pages/DeletedAdmin";
 
 export default function App() {
   const BASE_URL = import.meta.env.VITE_API_URL;
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="overview" element={<AdminTabs />} />
             <Route path="visitors" element={<VisitorsAdmin />} />
+            <Route path="/admin/deleted" element={<DeletedBoardAdmin />} />
             <Route path="/admin/filesetting" element={<FileSettingPage />} />
           </Route>
 

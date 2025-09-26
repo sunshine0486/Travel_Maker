@@ -14,6 +14,7 @@ export type Board = {
   canEdit: boolean;
   canDel: boolean;
   delYn: "Y" | "N";
+  commentCount: number;
 };
 
 // 댓글 타입 추가해야함

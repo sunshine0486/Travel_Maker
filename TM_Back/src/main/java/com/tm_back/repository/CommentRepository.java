@@ -17,5 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByDelYn(DeleteStatus delYn, Pageable pageable);
 
     Integer countByBoardId(Long id);
+
+    int countByBoardIdAndDelYn(Long boardId, DeleteStatus deleteStatus);
 }
 

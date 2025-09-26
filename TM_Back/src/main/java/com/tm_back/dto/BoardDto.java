@@ -3,6 +3,7 @@ package com.tm_back.dto;
 import com.tm_back.constant.Category;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.entity.Board;
+import com.tm_back.repository.LikesRepository;
 import lombok.*;
 
 import java.time.LocalDateTime;

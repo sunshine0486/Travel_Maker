@@ -4,19 +4,21 @@ import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import { getComment, deleteComment } from "../api/CommentApi";
 import type { Comment } from "../../type";
+import { useAuthStore } from "../../store";
 
 interface CommentProps {
   boardId: number;
-  isAuthenticated: boolean;
 }
 
-export default function Comments({ boardId, isAuthenticated  }: CommentProps) {
+export default function Comments({ boardId }: CommentProps) {
   const [comments, setComments] = useState<Comment[]>([]);
+  const { isAuthenticated, loginId, isAdmin } = useAuthStore(); // ✅ 로그인 정보 가져오기
 
   const fetchComments = async () => {
     try {
       const data = await getComment(boardId);
       setComments(data);
+      console.log(data);
     } catch (error) {
       console.error("댓글 불러오기 실패:", error);
     }
@@ -35,7 +37,7 @@ export default function Comments({ boardId, isAuthenticated  }: CommentProps) {
     fetchComments();
   }, [boardId]);
 
-  if (!isAuthenticated ) {
+  if (!isAuthenticated) {
     return (
       <Box mt={1}>
         <Divider sx={{ mb: 3 }} />
@@ -45,19 +47,11 @@ export default function Comments({ boardId, isAuthenticated  }: CommentProps) {
       </Box>
     );
   }
-  
+
   return (
     <Box mt={4}>
-      {/* <Typography variant="h5" gutterBottom>
-        댓글
-      </Typography>
-      <Divider sx={{ mb: 2 }} /> */}
-
       {/* 댓글 입력 */}
-      <CommentInput
-        boardId={boardId}
-        onSuccess={fetchComments}
-      />
+      <CommentInput boardId={boardId} onSuccess={fetchComments} />
 
       {/* 댓글 목록 */}
       <CommentList
@@ -65,6 +59,8 @@ export default function Comments({ boardId, isAuthenticated  }: CommentProps) {
         onDelete={handleDeleteComment}
         onRefresh={fetchComments}
         boardId={boardId}
+        loginId={loginId} // ✅ zustand에서 가져온 loginId
+        loginRole={isAdmin ? "ADMIN" : "USER"} // ✅ isAdmin 상태로 role 구분
       />
     </Box>
   );

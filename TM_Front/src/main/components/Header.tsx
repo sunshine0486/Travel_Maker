@@ -52,7 +52,7 @@ export default function Header() {
 
   // ✅ 내비게이션 항목들을 배열로 정의
   const navItems = [
-    { name: "여행 Info/Tip", path: "/board/show/INFO_TIP" },
+    { name: "여행 Info/Tip", path: "/board/show/TIP" },
     { name: "여행 Q&A", path: "/board/show/QNA" },
     { name: "여행 Review", path: "/board/show/REVIEW" },
     { name: "Notice", path: "/board/show/NOTICE" },

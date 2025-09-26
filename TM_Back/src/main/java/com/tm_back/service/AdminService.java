@@ -2,12 +2,9 @@ package com.tm_back.service;
 
 import com.tm_back.dto.*;
 import com.tm_back.entity.FileSetting;
-import com.tm_back.repository.FileSettingRepository;
+import com.tm_back.repository.*;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.entity.Comment;
-import com.tm_back.repository.BoardRepository;
-import com.tm_back.repository.CommentRepository;
-import com.tm_back.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @Transactional
@@ -27,6 +25,7 @@ public class AdminService {
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final LikesRepository likesRepository;
 
     // ===== Member =====
     public PagedResponse<MemberDto> getMembers(int page, int size) {
@@ -38,9 +37,34 @@ public class AdminService {
     // ===== Board =====
     public PagedResponse<BoardDto> getBoards(int page, int size) {
         var pageable = PageRequest.of(page, size);
-        var result = boardRepository.findAll(pageable);
+        // delYn = N인 게시글만 조회
+        var result = boardRepository.findByDelYn(DeleteStatus.N, pageable);
         return PagedResponse.of(result, BoardDto::from);
     }
+
+    // 삭제이력
+    public PagedResponse<BoardDto> getDeletedBoard(int page, int size) {
+        var pageable = PageRequest.of(page, size);
+
+        // delYn = Y인 게시글만 조회
+        var result = boardRepository.findByDelYn(DeleteStatus.Y, pageable);
+
+        // BoardDto 변환 시 likeCount, commentCount 포함
+        var dtoPage = result.map(board -> {
+            return BoardDto.builder()
+                    .id(board.getId())
+                    .title(board.getTitle())
+                    .nickname(board.getMember().getNickname())
+                    .views(board.getViews())
+                    .likeCount(likesRepository.countByBoardId(board.getId()))      // likeCount 추가
+                    .commentCount(commentRepository.countByBoardId(board.getId())) // commentCount 추가
+                    .regTime(board.getRegTime())
+                    .build();
+        });
+
+        return PagedResponse.of(dtoPage, b -> b); // 이미 BoardDto라서 변환 함수는 identity
+    }
+
 
     public void deleteBoard(Long id) {
         boardRepository.deleteById(id);

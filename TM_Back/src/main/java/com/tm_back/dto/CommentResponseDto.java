@@ -22,6 +22,7 @@ public class CommentResponseDto {
 
     private Long boardId;
     private Long memberId;
+    private String loginId;
 
     @JsonProperty("author")
     private String memberNickname;
