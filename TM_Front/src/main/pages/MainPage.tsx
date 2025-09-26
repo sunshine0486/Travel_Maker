@@ -55,10 +55,11 @@ export default function MainPage() {
           </Typography>
           {currentBoards.map((post) => (
             <PostCard
+              id={post.id}
               key={post.id}
               title={post.title}
               content={post.content ?? ""} // 최신글은 본문 있음
-              // imageUrl={post.boardFileDtoList?.[0]?.fileUrl} // 필요 시 첫 번째 첨부파일 썸네일 사용 가능
+              imageUrl={post.boardFileDtoList?.[0]?.fileUrl} // 필요 시 첫 번째 첨부파일 썸네일 사용 가능
             />
           ))}
         </Grid>
@@ -69,6 +70,7 @@ export default function MainPage() {
           </Typography>
           <PopularPostList
             posts={hotBoards.map((post, index) => ({
+              id: post.id,
               rank: post.rank ?? index + 1, // 백엔드에서 내려주면 그대로, 없으면 index
               title: post.title,
             }))}

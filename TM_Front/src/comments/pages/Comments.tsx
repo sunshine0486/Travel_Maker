@@ -7,10 +7,10 @@ import type { Comment } from "../../type";
 
 interface CommentProps {
   boardId: number;
-  loggedInUser?: { id: number }; // optional
+  isAuthenticated: boolean;
 }
 
-export default function Comments({ boardId, loggedInUser }: CommentProps) {
+export default function Comments({ boardId, isAuthenticated  }: CommentProps) {
   const [comments, setComments] = useState<Comment[]>([]);
 
   const fetchComments = async () => {
@@ -22,9 +22,9 @@ export default function Comments({ boardId, loggedInUser }: CommentProps) {
     }
   };
 
-  const handleDeleteComment = async (id: number, memberId: number) => {
+  const handleDeleteComment = async (id: number) => {
     try {
-      await deleteComment(id, memberId);
+      await deleteComment(id);
       fetchComments();
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
@@ -35,32 +35,26 @@ export default function Comments({ boardId, loggedInUser }: CommentProps) {
     fetchComments();
   }, [boardId]);
 
-  if (!loggedInUser) {
+  if (!isAuthenticated ) {
     return (
-      <Box mt={4}>
-        <Typography variant="h5" gutterBottom>
-          댓글
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
+      <Box mt={1}>
+        <Divider sx={{ mb: 3 }} />
         <Typography color="textSecondary">
           로그인 후 댓글을 작성할 수 있습니다.
         </Typography>
       </Box>
     );
   }
-
-  const userId = loggedInUser.id;
-
+  
   return (
     <Box mt={4}>
-      <Typography variant="h5" gutterBottom>
+      {/* <Typography variant="h5" gutterBottom>
         댓글
       </Typography>
-      <Divider sx={{ mb: 2 }} />
+      <Divider sx={{ mb: 2 }} /> */}
 
       {/* 댓글 입력 */}
       <CommentInput
-        memberId={userId}
         boardId={boardId}
         onSuccess={fetchComments}
       />
@@ -70,7 +64,6 @@ export default function Comments({ boardId, loggedInUser }: CommentProps) {
         comments={comments}
         onDelete={handleDeleteComment}
         onRefresh={fetchComments}
-        memberId={userId}
         boardId={boardId}
       />
     </Box>

@@ -5,7 +5,6 @@ import { getCommentMaxLength } from "../api/ConfigApi";
 import type { CreateCommentRequest } from "../../type";
 
 interface CommentInputProps {
-  memberId: number;
   boardId: number;
   parentCommentId?: number; // ✅ 대댓글일 때만 필요
   onSuccess: () => void;
@@ -15,7 +14,6 @@ interface CommentInputProps {
 }
 
 export default function CommentInput({
-  memberId,
   boardId,
   parentCommentId,
   onSuccess,
@@ -55,11 +53,10 @@ export default function CommentInput({
 
     try {
       if (isEdit && commentId) {
-        await updateComment(commentId, text.trim(), memberId);
+        await updateComment(commentId, text.trim());
       } else {
         const payload: CreateCommentRequest = {
           content: text.trim(),
-          memberId,
           boardId,
           parentCommentId, // ✅ 최상위 댓글일 경우 undefined로 전달
         };
@@ -74,7 +71,7 @@ export default function CommentInput({
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={2} mt={2}>
+    <Box display="flex" flexDirection="column" gap={2} mt={1}>
       <TextField
         label={isEdit ? "댓글 수정" : "댓글을 입력하세요"}
         multiline

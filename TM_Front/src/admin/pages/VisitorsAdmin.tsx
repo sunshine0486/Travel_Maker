@@ -9,6 +9,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Box, Tabs, Tab } from "@mui/material";
+import axios from "axios";
+import type { AxiosResponse } from "axios";
+import { getAxiosConfig } from "../../member/api/loginApi";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -20,24 +23,39 @@ export default function VisitorsAdmin() {
   const [monthlyData, setMonthlyData] = useState<VisitorStat[]>([]);
 
   useEffect(() => {
-    if (tab === "daily") {
-      fetch(`${BASE_URL}/visitors/daily?days=7`)
-        .then((res) => res.json())
-        .then((json: VisitorStat[]) => setDailyData(json))
-        .catch(() => setDailyData([]));
-    } else {
-      fetch(`${BASE_URL}/visitors/monthly?months=6`)
-        .then((res) => res.json())
-        .then((json: VisitorStat[]) => setMonthlyData(json))
-        .catch(() => setMonthlyData([]));
-    }
+    const fetchData = async () => {
+      try {
+        const url =
+          tab === "daily"
+            ? `${BASE_URL}/visitors/daily?days=7`
+            : `${BASE_URL}/visitors/monthly?months=6`;
+
+        const res: AxiosResponse<VisitorStat[]> = await axios.get(
+          url,
+          getAxiosConfig()
+        );
+
+        if (tab === "daily") {
+          setDailyData(res.data);
+        } else {
+          setMonthlyData(res.data);
+        }
+      } catch {
+        if (tab === "daily") {
+          setDailyData([]);
+        } else {
+          setMonthlyData([]);
+        }
+      }
+    };
+
+    fetchData();
   }, [tab]);
 
   const chartData = tab === "daily" ? dailyData : monthlyData;
 
   return (
     <Box p={2}>
-      {/* ✅ Tabs로 변경 */}
       <Tabs
         value={tab}
         onChange={(_, newValue) => setTab(newValue)}
@@ -47,7 +65,6 @@ export default function VisitorsAdmin() {
         <Tab value="monthly" label="월" />
       </Tabs>
 
-      {/* ✅ 그래프 */}
       <Box mt={3}>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={chartData} barCategoryGap={45}>

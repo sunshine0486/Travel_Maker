@@ -16,9 +16,8 @@ import type { Comment } from "../../type";
 
 interface CommentListProps {
   comments: Comment[];
-  onDelete: (id: number, memberId: number) => void;
+  onDelete: (id: number) => void;
   onRefresh: () => void;
-  memberId: number;
   boardId: number;
 }
 
@@ -26,7 +25,6 @@ export default function CommentList({
   comments,
   onDelete,
   onRefresh,
-  memberId,
   boardId,
 }: CommentListProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -59,7 +57,7 @@ export default function CommentList({
   const handleSave = async (commentId: number) => {
     if (!editText.trim()) return;
     try {
-      await updateComment(commentId, editText.trim(), memberId);
+      await updateComment(commentId, editText.trim());
       onRefresh();
       setEditingId(null);
     } catch (error) {
@@ -69,7 +67,7 @@ export default function CommentList({
 
   const handleDelete = () => {
     if (selectedId !== null) {
-      onDelete(selectedId, memberId);
+      onDelete(selectedId);
       handleClose();
     }
   };
@@ -79,8 +77,32 @@ export default function CommentList({
   };
 
   const renderComment = (comment: Comment, isReply = false) => {
-    // ✅ 소프트 삭제된 댓글은 숨김
+    // ✅ 삭제된 부모댓글 처리
     if (comment.delYn === "Y") {
+      // 자식 있으면 표시
+      if (comment.replies.length > 0) {
+        return (
+          <Paper
+            key={comment.id}
+            elevation={isReply ? 1 : 2}
+            sx={{
+              padding: isReply ? 1.5 : 2,
+              marginBottom: 2,
+              backgroundColor: isReply ? "#f9f9f9" : "white",
+            }}
+          >
+            <Typography color="textSecondary">
+              삭제된 댓글입니다.
+            </Typography>
+
+            {/* 대댓글 */}
+            <Box mt={2} ml={2}>
+              {comment.replies.map((reply) => renderComment(reply, true))}
+            </Box>
+          </Paper>
+        );
+      }
+      // 자식 없으면 숨김
       return null;
     }
 
@@ -150,7 +172,6 @@ export default function CommentList({
         {replyingToId === comment.id && (
           <Box mt={1} ml={2}>
             <CommentInput
-              memberId={memberId}
               boardId={boardId}
               parentCommentId={comment.id}
               onSuccess={() => {
@@ -173,9 +194,6 @@ export default function CommentList({
 
   return (
     <Box mt={4}>
-      <Typography variant="h6" gutterBottom>
-        댓글 목록
-      </Typography>
       {comments.length === 0 ? (
         <Typography color="textSecondary">작성된 댓글이 없습니다.</Typography>
       ) : (

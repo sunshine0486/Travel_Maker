@@ -20,6 +20,7 @@ export const getBoards = async (page = 1): Promise<PagedResponse<Board>> => {
     `${BASE_URL}/admin/boards?page=${page - 1}`,
     getAxiosConfig()
   );
+  console.log(res.data)
   return res.data;
 };
 

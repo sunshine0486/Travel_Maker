@@ -24,6 +24,7 @@ import {
 import { formatDateTime, formatSize } from "../../ts/format";
 import { CATEGORIES_MAP } from "../../ts/category";
 import { useAuthStore } from "../../store";
+import Comments from "../../comments/pages/Comments";
 
 export default function BoardDtlPage() {
   const { id } = useParams<{ id: string }>();
@@ -350,12 +351,11 @@ export default function BoardDtlPage() {
       </Box>
 
       {/* 댓글 영역 */}
-      <Box sx={{ mt: 4 }}>
-        <Divider sx={{ mb: 2 }} />
-        <Typography variant="h6">댓글</Typography>
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="body2">댓글 내용...</Typography>
-        </Box>
+      <Box sx={{  }}>
+        <Comments 
+          boardId={boardId} 
+          isAuthenticated ={isAuthenticated}
+        />
       </Box>
     </Box>
   );

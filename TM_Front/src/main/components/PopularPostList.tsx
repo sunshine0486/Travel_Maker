@@ -1,8 +1,10 @@
-import { List, ListItem, ListItemText } from "@mui/material";
+import { List } from "@mui/material";
+import PopularPostItem from "./PopularPostItem";
 
 interface Post {
   rank: number;
   title: string;
+  id: number;
 }
 
 interface Props {
@@ -13,9 +15,12 @@ export default function PopularPostList({ posts }: Props) {
   return (
     <List dense>
       {posts.map((post) => (
-        <ListItem key={post.rank} divider>
-          <ListItemText primary={`${post.rank}. ${post.title}`} />
-        </ListItem>
+        <PopularPostItem
+          key={post.id}
+          rank={post.rank}
+          title={post.title}
+          id={post.id}
+        />
       ))}
     </List>
   );
