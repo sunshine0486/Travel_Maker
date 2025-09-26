@@ -61,8 +61,8 @@ export default function BoardAdmin() {
 
     const target = filtered ?? boards;
     const sorted = [...target].sort((a, b) => {
-      const timeA = new Date(a.createdAt).getTime();
-      const timeB = new Date(b.createdAt).getTime();
+      const timeA = new Date(a.updateTime).getTime();
+      const timeB = new Date(b.updateTime).getTime();
       return sortNewestFirst ? timeA - timeB : timeB - timeA;
     });
 
@@ -128,7 +128,7 @@ export default function BoardAdmin() {
                 {b.title}
               </TableCell>
               <TableCell>{b.author}</TableCell>
-              <TableCell>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
+              <TableCell>{new Date(b.updateTime).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Button
                   variant="outlined"

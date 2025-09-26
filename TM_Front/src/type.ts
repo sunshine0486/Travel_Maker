@@ -54,7 +54,6 @@ export interface BoardFile {
 
 export interface CreateCommentRequest {
   content: string;
-  memberId: number;
   boardId: number;
   parentCommentId?: number;
 }

@@ -45,31 +45,28 @@ export const getComment = async (boardId: number): Promise<Comment[]> => {
 export const createComment = async (
   comment: CreateCommentRequest
 ): Promise<Comment> => {
-  const res = await axios.post<Comment>(`${BASE_URL}/comment/new`, comment ,
-      getAxiosConfig());
+  const res = await axios.post<Comment>(`${BASE_URL}/comment/new`, 
+    comment,
+    getAxiosConfig());
   return normalizeComment(res.data);
 };
 
 // 댓글 삭제 (권한 검사: memberId 필요)
 export const deleteComment = async (
-  commentId: number,
-  memberId: number
+  commentId: number
 ): Promise<void> => {
-  await axios.delete(`${BASE_URL}/comment/${commentId}`, {
-    params: { memberId },
-  });
+  await axios.delete(`${BASE_URL}/comment/${commentId}`, getAxiosConfig());
 };
 
 // 댓글 수정 (권한 검사: memberId 필요)
 export const updateComment = async (
   commentId: number,
   content: string,
-  memberId: number
 ): Promise<Comment> => {
   const res = await axios.put<Comment>(
     `${BASE_URL}/comment/${commentId}`,
     { content },
-    { params: { memberId } }
+    getAxiosConfig()
   );
   return normalizeComment(res.data);
 };

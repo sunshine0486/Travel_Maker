@@ -14,6 +14,8 @@ import com.tm_back.repository.CommentRepository;
 import com.tm_back.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,21 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
-    private final CommentConfig commentConfig; // 최대글자수 설정 주입
+    private final CommentConfig commentConfig;
+
+    /**
+     * 현재 로그인한 Member 조회 (username 기반)
+     */
+    private Member getCurrentMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("인증 정보가 없습니다.");
+        }
+
+        String loginId = authentication.getName(); // JwtFilter에서 set한 loginId
+        return memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new RuntimeException("해당 username의 멤버가 존재하지 않습니다: " + loginId));
+    }
 
     public List<CommentResponseDto> getCommentsByBoardId(Long boardId) {
         List<Comment> comments = commentRepository.findByBoardIdAndParentIsNullOrderByRegTimeAsc(boardId);
@@ -43,8 +59,7 @@ public class CommentService {
             throw new IllegalArgumentException("댓글은 " + maxLength + "자 이내로 작성해야 합니다.");
         }
 
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new RuntimeException("멤버 없음"));
+        Member member = getCurrentMember();
 
         Board board = boardRepository.findById(dto.getBoardId())
                 .orElseThrow(() -> new RuntimeException("게시글 없음"));
@@ -72,11 +87,11 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long id, UpdateCommentDto dto, Long memberId) {
+    public CommentResponseDto updateComment(Long id, UpdateCommentDto dto) {
+        Member member = getCurrentMember();
+
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("댓글 없음"));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버 없음"));
 
         if (!comment.getMember().getId().equals(member.getId())
                 && member.getRole() != Role.ADMIN) {
@@ -88,11 +103,11 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long id, Long memberId) {
+    public void deleteComment(Long id) {
+        Member member = getCurrentMember();
+
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("댓글 없음"));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버 없음"));
 
         if (!comment.getMember().getId().equals(member.getId())
                 && member.getRole() != Role.ADMIN) {
@@ -101,39 +116,28 @@ public class CommentService {
 
         if (comment.getParent() == null) {
             long activeChildCount = commentRepository.countByParentIdAndDelYn(comment.getId(), DeleteStatus.N);
-            log.info("deleteComment: parent id={}, activeChildCount={}", comment.getId(), activeChildCount);
-
             if (activeChildCount > 0) {
                 comment.setContent("삭제된 댓글입니다.");
                 comment.setDelYn(DeleteStatus.Y);
                 commentRepository.save(comment);
-                log.info("deleteComment: parent {} soft-deleted (has children)", comment.getId());
             } else {
                 commentRepository.delete(comment);
-                log.info("deleteComment: parent {} hard-deleted (no children)", comment.getId());
             }
         } else {
             Comment parent = comment.getParent();
-            Long parentId = parent != null ? parent.getId() : null;
-            log.info("deleteComment: deleting child id={}, parentId={}", comment.getId(), parentId);
-
             commentRepository.delete(comment);
             commentRepository.flush();
 
             if (parent != null && parent.getDelYn() == DeleteStatus.Y) {
                 long aliveChildCount = commentRepository.countByParentIdAndDelYn(parent.getId(), DeleteStatus.N);
-                log.info("deleteComment: after child delete, parentId={} aliveChildCount={}", parent.getId(), aliveChildCount);
                 if (aliveChildCount == 0) {
                     commentRepository.delete(parent);
-                    log.info("deleteComment: parent {} hard-deleted (no alive children left)", parent.getId());
                 }
             }
         }
     }
 
     private CommentResponseDto toDto(Comment comment) {
-        log.info("toDto: id={}, entity.delYn={}", comment.getId(), comment.getDelYn());
-
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
         dto.setContent(comment.getDelYn() == DeleteStatus.Y ? "삭제된 댓글입니다" : comment.getContent());
@@ -149,7 +153,6 @@ public class CommentService {
         }
 
         dto.setDelYn(comment.getDelYn() != null ? comment.getDelYn().name() : "N");
-        log.info("toDto: id={}, dto.delYn={}", dto.getId(), dto.getDelYn());
 
         List<Comment> children = comment.getChildren() != null ? comment.getChildren() : Collections.emptyList();
         dto.setReplies(

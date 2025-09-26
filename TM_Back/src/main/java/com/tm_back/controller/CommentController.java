@@ -32,18 +32,14 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public CommentResponseDto updateComment(
             @PathVariable Long commentId,
-            @RequestBody UpdateCommentDto dto,
-            @RequestParam Long memberId
+            @RequestBody UpdateCommentDto dto
     ) {
-        return commentService.updateComment(commentId, dto, memberId);
+        return commentService.updateComment(commentId, dto);
     }
 
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
-    public void deleteComment(
-            @PathVariable Long commentId,
-            @RequestParam Long memberId
-    ) {
-        commentService.deleteComment(commentId, memberId);
+    public void deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId);
     }
 }
