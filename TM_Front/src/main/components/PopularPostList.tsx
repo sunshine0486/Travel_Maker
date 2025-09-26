@@ -1,4 +1,5 @@
-import { List } from "@mui/material";
+// src/components/PopularPostList.tsx
+import { List, Box } from "@mui/material";
 import PopularPostItem from "./PopularPostItem";
 
 interface Post {
@@ -13,15 +14,17 @@ interface Props {
 
 export default function PopularPostList({ posts }: Props) {
   return (
-    <List dense>
-      {posts.map((post) => (
-        <PopularPostItem
-          key={post.id}
-          rank={post.rank}
-          title={post.title}
-          id={post.id}
-        />
-      ))}
-    </List>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <List dense sx={{ flex: 1, height: "100%", overflowY: "auto" }}>
+        {posts.map((post) => (
+          <PopularPostItem
+            key={post.id}
+            rank={post.rank}
+            title={post.title}
+            id={post.id}
+          />
+        ))}
+      </List>
+    </Box>
   );
 }

@@ -6,11 +6,12 @@ import type { CreateCommentRequest } from "../../type";
 
 interface CommentInputProps {
   boardId: number;
-  parentCommentId?: number; // ✅ 대댓글일 때만 필요
+  parentCommentId?: number;
   onSuccess: () => void;
-  initialContent?: string;  // ✅ 수정 시 기존 내용
-  isEdit?: boolean;         // ✅ 수정 모드 여부
-  commentId?: number;       // ✅ 수정할 댓글 ID
+  initialContent?: string;
+  isEdit?: boolean;
+  commentId?: number;
+  isAuthenticated: boolean; // ✅ 추가
 }
 
 export default function CommentInput({
@@ -20,16 +21,16 @@ export default function CommentInput({
   initialContent = "",
   isEdit = false,
   commentId,
+  isAuthenticated,
 }: CommentInputProps) {
   const [text, setText] = useState(initialContent);
   const [error, setError] = useState("");
-  const [maxLength, setMaxLength] = useState<number>(300); // ✅ 기본값 300
+  const [maxLength, setMaxLength] = useState<number>(300);
 
-  // ✅ 최초 로드 시 백엔드에서 최대 글자수 가져오기
   useEffect(() => {
     getCommentMaxLength()
       .then(setMaxLength)
-      .catch(() => setMaxLength(300)); // 실패 시 기본값
+      .catch(() => setMaxLength(300));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +59,7 @@ export default function CommentInput({
         const payload: CreateCommentRequest = {
           content: text.trim(),
           boardId,
-          parentCommentId, // ✅ 최상위 댓글일 경우 undefined로 전달
+          parentCommentId,
         };
         await createComment(payload);
       }
@@ -70,6 +71,17 @@ export default function CommentInput({
     }
   };
 
+  if (!isAuthenticated) {
+    // ✅ 로그인 안 되어 있으면 안내 문구만 표시
+    return (
+      <Box mt={1}>
+        <Typography color="textSecondary">
+          로그인 후 댓글을 작성할 수 있습니다.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box display="flex" flexDirection="column" gap={2} mt={1}>
       <TextField
@@ -80,8 +92,8 @@ export default function CommentInput({
         onChange={handleChange}
         variant="outlined"
         fullWidth
-        error={!!error} // ✅ 빨간 테두리
-        helperText={error || ""} // ✅ 빨간 글씨 에러 메시지
+        error={!!error}
+        helperText={error || ""}
       />
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography
@@ -94,7 +106,7 @@ export default function CommentInput({
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={!!error} // ✅ 에러 있으면 버튼 비활성화
+          disabled={!!error}
         >
           {isEdit ? "수정" : "저장"}
         </Button>
