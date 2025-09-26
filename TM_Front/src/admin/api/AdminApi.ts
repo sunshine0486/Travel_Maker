@@ -20,7 +20,7 @@ export const getBoards = async (page = 1): Promise<PagedResponse<Board>> => {
     `${BASE_URL}/admin/boards?page=${page - 1}`,
     getAxiosConfig()
   );
-  console.log(res.data)
+  console.log(res.data);
   return res.data;
 };
 
@@ -42,6 +42,7 @@ export const getComments = async (
 export const deleteComment = async (id: number): Promise<void> => {
   await axios.patch(
     `${BASE_URL}/admin/comments/${id}/delete`,
+    null,
     getAxiosConfig()
   );
 };

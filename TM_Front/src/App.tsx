@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import Header from "./main/components/Header";
 import MainPage from "./main/pages/MainPage";
 import AdminTabs from "./admin/pages/AdminTabs";
@@ -24,7 +24,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Header /> {/* ✅ Header는 Routes 밖에 배치 */}
-      <Container maxWidth="lg">
+      {/* ✅ <Box>를 추가하고 Flexbox 속성으로 중앙 정렬 */}
+      <Container maxWidth="lg" sx={{ paddingTop: "64px" }}>
         <Routes>
           {/* 로그인 */}
           <Route path="/signup" element={<SignUp></SignUp>}></Route>
