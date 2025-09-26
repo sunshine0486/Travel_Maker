@@ -19,7 +19,7 @@ export default function PostCard({ id, title, content, imageUrl }: Props) {
   return (
     <Card
       sx={{ display: "flex", mb: 2, cursor: "pointer" }}
-      onClick={() => navigate(`/board/${id}`)}
+      onClick={() => navigate(`/board/show/dtl/${id}`)}
     >
       {imageUrl && (
         <CardMedia

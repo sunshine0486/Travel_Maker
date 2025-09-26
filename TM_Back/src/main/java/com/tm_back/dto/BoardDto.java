@@ -32,6 +32,19 @@ public class BoardDto {
         List<String> hashtagNames = board.getBoardHashtags().stream()
                 .map(bh -> bh.getHashtag().getHashtagName())
                 .toList();
+        BoardDto dto = new BoardDto();
+        dto.setId(board.getId());
+        dto.setTitle(board.getTitle());
+        dto.setContent(board.getContent());
+        dto.setCategory(board.getCategory());
+        dto.setMemberId(board.getMember().getId());
+        dto.setNickname(board.getMember().getNickname());
+        dto.setViews(board.getViews());
+        dto.setRegTime(board.getRegTime());
+        dto.setUpdateTime(board.getUpdateTime());
+        dto.setDelYn(board.getDelYn());
+        return dto;
+    }
 
         return BoardDto.builder()
                 .id(board.getId())

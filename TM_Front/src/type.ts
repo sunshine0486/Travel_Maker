@@ -24,7 +24,7 @@ export interface Board {
   id: number;
   category: "INFO_TIP" | "REVIEW" | "QNA" | "NOTICE";
   title: string;
-  author: string;
+  nickname: string;
   regTime: string;
   updateTime: string;
 
