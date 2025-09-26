@@ -353,7 +353,7 @@ export default function BoardDtlPage() {
 
       {/* 댓글 영역 */}
       <Box sx={{}}>
-        <Comments boardId={boardId} isAuthenticated={isAuthenticated} />
+        <Comments boardId={boardId} />
       </Box>
     </Box>
   );

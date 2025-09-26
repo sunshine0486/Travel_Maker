@@ -20,8 +20,14 @@ export default function MainPage() {
   }, []);
 
   // 최신 3개 슬롯, 인기 5개 슬롯 고정
-  const latestPosts = Array.from({ length: 3 }, (_, i) => currentBoards[i] ?? null);
-  const popularPosts = Array.from({ length: 5 }, (_, i) => hotBoards[i] ?? null);
+  const latestPosts = Array.from(
+    { length: 3 },
+    (_, i) => currentBoards[i] ?? null
+  );
+  const popularPosts = Array.from(
+    { length: 5 },
+    (_, i) => hotBoards[i] ?? null
+  );
 
   return (
     <Box sx={{ my: 4, bgcolor: "#fff", minHeight: "100vh" }}>
@@ -42,7 +48,7 @@ export default function MainPage() {
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           <Grid size={{ xs: 6, md: 3 }}>
-            <CategoryCard title="여행 Info/Tip" path="/board/show/INFO_TIP" />
+            <CategoryCard title="여행 Info/Tip" path="/board/show/TIP" />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
             <CategoryCard title="여행 Q&A" path="/board/show/QNA" />
@@ -93,7 +99,14 @@ export default function MainPage() {
 
           <Box sx={{ mt: 1 }}>
             {popularPosts.every((p) => !p) ? (
-              <Paper sx={{ p: 4, textAlign: "center", color: "text.secondary", mb: 2 }}>
+              <Paper
+                sx={{
+                  p: 4,
+                  textAlign: "center",
+                  color: "text.secondary",
+                  mb: 2,
+                }}
+              >
                 인기 게시글이 없습니다.
               </Paper>
             ) : (
@@ -101,7 +114,11 @@ export default function MainPage() {
                 posts={popularPosts.map((p, idx) =>
                   p
                     ? { id: p.id, rank: p.rank ?? idx + 1, title: p.title }
-                    : { id: -idx - 1, rank: idx + 1, title: "게시글이 없습니다." }
+                    : {
+                        id: -idx - 1,
+                        rank: idx + 1,
+                        title: "게시글이 없습니다.",
+                      }
                 )}
               />
             )}

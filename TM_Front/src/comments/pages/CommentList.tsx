@@ -22,6 +22,7 @@ interface CommentListProps {
   boardId: number;
   loginId: string; // 현재 로그인한 사용자 ID
   loginRole: string; // 현재 로그인한 사용자 역할 ("ADMIN" 등)
+  isAuthenticated: boolean;
 }
 
 export default function CommentList({
@@ -31,6 +32,7 @@ export default function CommentList({
   boardId,
   loginId,
   loginRole,
+  isAuthenticated,
 }: CommentListProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -181,6 +183,7 @@ export default function CommentList({
                 onRefresh();
                 setReplyingToId(null);
               }}
+              isAuthenticated={isAuthenticated}
             />
           </Box>
         )}
