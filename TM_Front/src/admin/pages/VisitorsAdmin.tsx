@@ -67,7 +67,7 @@ export default function VisitorsAdmin() {
 
       <Box mt={3}>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData} barCategoryGap={45}>
+          <BarChart data={chartData} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
@@ -83,7 +83,7 @@ export default function VisitorsAdmin() {
               width={70}
             />
             <Tooltip />
-            <Bar dataKey="count" fill="#151B54" />
+            <Bar dataKey="count" fill="#151B54" barSize={30} />
           </BarChart>
         </ResponsiveContainer>
       </Box>

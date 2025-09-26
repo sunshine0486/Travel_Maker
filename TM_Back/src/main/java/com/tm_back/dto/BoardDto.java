@@ -33,6 +33,7 @@ public class BoardDto {
         dto.setContent(board.getContent());
         dto.setCategory(board.getCategory());
         dto.setMemberId(board.getMember().getId());
+        dto.setNickname(board.getMember().getNickname());
         dto.setViews(board.getViews());
         dto.setRegTime(board.getRegTime());
         dto.setUpdateTime(board.getUpdateTime());

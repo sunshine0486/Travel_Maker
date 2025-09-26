@@ -33,16 +33,16 @@ export default function MainPage() {
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           <Grid size={{ xs: 6, md: 3 }}>
-            <CategoryCard title="여행 Info/Tip" path="/board/INFO_TIP" />
+            <CategoryCard title="여행 Info/Tip" path="/board/show/INFO_TIP" />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <CategoryCard title="여행 Q&A" path="/board/QNA" />
+            <CategoryCard title="여행 Q&A" path="/board/show/QNA" />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <CategoryCard title="여행 Review" path="/board/REVIEW" />
+            <CategoryCard title="여행 Review" path="/board/show/REVIEW" />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <CategoryCard title="Notice" path="/board/NOTICE" />
+            <CategoryCard title="Notice" path="/board/show/NOTICE" />
           </Grid>
         </Grid>
       </Box>

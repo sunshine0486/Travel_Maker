@@ -41,7 +41,7 @@ export const getComments = async (
 
 export const deleteComment = async (id: number): Promise<void> => {
   await axios.patch(
-    `${BASE_URL}/admin/comments/${id}/delete`,
+    `${BASE_URL}/admin/comments/${id}/delete`, null,
     getAxiosConfig()
   );
 };

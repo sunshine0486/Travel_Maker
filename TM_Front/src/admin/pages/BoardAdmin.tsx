@@ -49,7 +49,7 @@ export default function BoardAdmin() {
     const result = boards.filter((b) => {
       if (field === "category") return b.category.includes(keyword);
       if (field === "title") return b.title.includes(keyword);
-      if (field === "author") return b.author.includes(keyword);
+      if (field === "nickname") return b.nickname.includes(keyword);
       return true;
     });
     setFiltered(result);
@@ -91,7 +91,7 @@ export default function BoardAdmin() {
         options={[
           { value: "category", label: "카테고리" },
           { value: "title", label: "제목" },
-          { value: "author", label: "작성자" },
+          { value: "nickname", label: "작성자" },
         ]}
       />
 
@@ -122,7 +122,7 @@ export default function BoardAdmin() {
             <TableRow key={b.id}>
               <TableCell>{b.category}</TableCell>
               <TableCell
-                onClick={() => navigate(`/board/${b.id}`)}
+                onClick={() => navigate(`/board/show/dtl/${b.id}`)}
                 sx={{
                   cursor: "pointer",
                   color: "black",
@@ -131,7 +131,7 @@ export default function BoardAdmin() {
               >
                 {b.title}
               </TableCell>
-              <TableCell>{b.author}</TableCell>
+              <TableCell>{b.nickname}</TableCell>
               <TableCell>{new Date(b.regTime).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Button
