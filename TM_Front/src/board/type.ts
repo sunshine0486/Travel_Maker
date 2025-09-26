@@ -48,4 +48,6 @@ export type BoardList = {
   views: number;
   likeCount: number;
   regTime: string;
+  content: string;
+  hashtags: string[];
 };

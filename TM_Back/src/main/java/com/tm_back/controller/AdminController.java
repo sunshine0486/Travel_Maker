@@ -73,7 +73,6 @@ public class AdminController {
 //    유안코드
     @GetMapping("/filesetting")
     public ResponseEntity<?> getFileSetting(){
-        checkAdmin();
         return ResponseEntity.ok(adminService.getFileSetting());
     }
 

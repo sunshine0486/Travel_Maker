@@ -227,24 +227,31 @@ public class BoardService {
         // 카테고리별 조회인데 삭제여부가 N 인것만 출력
         List<Board> boardList = boardRepository.findByCategoryAndDelYn(category, DeleteStatus.N);
 
-
         List<BoardDto> boardDtoList = new ArrayList<>();
         for (Board board : boardList) {
+            // 여기서 해시태그 추출
+            List<String> hashtagNames = board.getBoardHashtags().stream()
+                    .map(bh -> bh.getHashtag().getHashtagName())
+                    .toList();
+
             BoardDto boardDto = BoardDto.builder()
                     .id(board.getId())
                     .category(board.getCategory())
                     .title(board.getTitle())
-///                    .commentCount(board)
+                    .content(board.getContent())
+                    .hashtags(hashtagNames) // 이제 변수 있음!
                     .nickname(board.getMember().getNickname())
                     .views(board.getViews())
                     .likeCount(likesRepository.countByBoardId(board.getId()))
                     .commentCount(commentRepository.countByBoardId(board.getId()))
                     .regTime(board.getRegTime())
                     .build();
+
             boardDtoList.add(boardDto);
         }
         return boardDtoList;
     }
+
 
     public Long deleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);

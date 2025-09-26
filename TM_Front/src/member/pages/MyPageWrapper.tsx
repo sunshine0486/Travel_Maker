@@ -89,6 +89,9 @@ export default function MyPageWrapper() {
           <Button onClick={handleVerify} variant="contained">
             확인
           </Button>
+          <Button onClick={() => window.history.back()} variant="contained">
+            취소
+          </Button>
         </DialogActions>
       </Dialog>
     );

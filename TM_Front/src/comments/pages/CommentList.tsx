@@ -13,6 +13,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CommentInput from "./CommentInput";
 import { updateComment } from "../api/CommentApi";
 import type { Comment } from "../../type";
+import { formatDateTime } from "../../ts/format";
 
 interface CommentListProps {
   comments: Comment[];
@@ -91,9 +92,7 @@ export default function CommentList({
               backgroundColor: isReply ? "#f9f9f9" : "white",
             }}
           >
-            <Typography color="textSecondary">
-              삭제된 댓글입니다.
-            </Typography>
+            <Typography color="textSecondary">삭제된 댓글입니다.</Typography>
 
             {/* 대댓글 */}
             <Box mt={2} ml={2}>
@@ -120,7 +119,7 @@ export default function CommentList({
           <Box>
             <Typography variant="subtitle2">{comment.author}</Typography>
             <Typography variant="caption" color="textSecondary">
-              {comment.createdAt}
+              {formatDateTime(comment.createdAt)}
             </Typography>
           </Box>
           <IconButton onClick={(e) => handleMenuClick(e, comment.id)}>

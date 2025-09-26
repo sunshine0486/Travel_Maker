@@ -37,16 +37,25 @@ export default function Header() {
 
         {/* 메뉴 */}
         <Box sx={{ display: "flex", gap: 3 }}>
-          <Button color="inherit" onClick={() => navigate("/board/INFO_TIP")}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/board/show/INFO_TIP")}
+          >
             여행 Info/Tip
           </Button>
-          <Button color="inherit" onClick={() => navigate("/board/QNA")}>
+          <Button color="inherit" onClick={() => navigate("/board/show/QNA")}>
             여행 Q&A
           </Button>
-          <Button color="inherit" onClick={() => navigate("/board/REVIEW")}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/board/show/REVIEW")}
+          >
             여행 Review
           </Button>
-          <Button color="inherit" onClick={() => navigate("/board/NOTICE")}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/board/show/NOTICE")}
+          >
             Notice
           </Button>
         </Box>
@@ -68,7 +77,7 @@ export default function Header() {
                 <Button
                   variant="outlined"
                   color="inherit"
-                  onClick={() => navigate("/admin")}
+                  onClick={() => navigate("/admin/overview")}
                 >
                   Admin
                 </Button>
