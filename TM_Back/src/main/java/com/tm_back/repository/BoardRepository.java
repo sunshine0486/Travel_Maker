@@ -11,7 +11,7 @@ import java.util.List;
 
 
 public interface BoardRepository extends JpaRepository<Board,Long> {
-    List<Board> findTop3ByOrderByRegTimeDesc();
+    List<Board> findTop3ByDelYnOrderByRegTimeDesc(DeleteStatus delYn);
 
     List<Board> findByCategory(Category category);
 
