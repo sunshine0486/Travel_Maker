@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,48 +8,24 @@ import {
   MenuItem,
   Typography,
   Avatar,
+  Tooltip,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store";
-import MenuIcon from "@mui/icons-material/Menu";
-import Tooltip from "@mui/material/Tooltip"; // 툴팁 추가
+import React from "react";
 
 export default function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, logout, isAdmin } = useAuthStore();
 
-  // ✅ 모바일 메뉴를 위한 상태 관리
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
-  // ✅ 사용자 메뉴를 위한 상태 관리 (필요시)
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
 
-  const handleLogoutClick = () => {
-    logout();
-    navigate("/");
-  };
-
-  // ✅ 모바일 메뉴 핸들러
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  // ✅ 사용자 메뉴 핸들러
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  // ✅ 내비게이션 항목들을 배열로 정의
   const navItems = [
     { name: "여행 Info/Tip", path: "/board/show/INFO_TIP" },
     { name: "여행 Q&A", path: "/board/show/QNA" },
@@ -58,15 +33,24 @@ export default function Header() {
     { name: "Notice", path: "/board/show/NOTICE" },
   ];
 
-  // ✅ 로그인 상태에 따른 사용자 메뉴 항목 정의
-  const loggedInSettings = [
-    { name: "마이페이지", path: "/mypage" },
-    { name: "로그아웃", path: "/logout" },
-  ];
-  const loggedOutSettings = [
-    { name: "로그인", path: "/login" },
-    { name: "회원가입", path: "/signup" },
-  ];
+  const handleLogoutClick = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
 
   const handleUserMenuClick = (path: string) => {
     if (path === "/logout") {
@@ -77,67 +61,39 @@ export default function Header() {
     handleCloseUserMenu();
   };
 
-  const settings = isAuthenticated ? loggedInSettings : loggedOutSettings;
+  const userMenuItems = isAuthenticated
+    ? [
+        { name: "마이페이지", path: "/mypage" },
+        ...(isAdmin ? [{ name: "Admin", path: "/admin/overview" }] : []),
+        { name: "로그아웃", path: "/logout" },
+      ]
+    : [
+        { name: "로그인", path: "/login" },
+        { name: "회원가입", path: "/signup" },
+      ];
 
   return (
-    <AppBar position="fixed" sx={{ background: "#151B54", width: "100vw" }}>
+    <AppBar position="fixed" sx={{ background: "#151B54", width: "100%" }}>
       <Toolbar
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+        sx={{ position: "relative", width: "100%", minHeight: "64px", px: 2 }}
       >
+        {/* 모바일 햄버거 메뉴 (왼쪽) */}
         <Box
-          sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-          onClick={() => navigate("/")}
+          sx={{
+            position: "absolute",
+            left: 0,
+            display: { xs: "flex", md: "none" },
+          }}
         >
-          <img
-            src="/travel_maker_miniwhite.png"
-            alt="Travel Maker Logo"
-            style={{ height: "40px" }}
-          />
-        </Box>
-
-        {/* ✅ 데스크탑 메뉴 */}
-        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
-          {navItems.map((item) => (
-            <Button
-              key={item.name}
-              color="inherit"
-              onClick={() => navigate(item.path)}
-            >
-              {item.name}
-            </Button>
-          ))}
-        </Box>
-
-        {/* ✅ 모바일 햄버거 메뉴 */}
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-          <IconButton
-            size="large"
-            aria-label="menu"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleOpenNavMenu}
-            color="inherit"
-          >
+          <IconButton onClick={handleOpenNavMenu} color="inherit">
             <MenuIcon />
           </IconButton>
           <Menu
-            id="menu-appbar"
             anchorEl={anchorElNav}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
           >
             {navItems.map((item) => (
               <MenuItem key={item.name} onClick={() => navigate(item.path)}>
@@ -147,65 +103,126 @@ export default function Header() {
           </Menu>
         </Box>
 
-        {/* ✅ 로그인/회원가입/로그아웃/마이페이지/어드민 버튼 */}
-        {isAuthenticated ? (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                {/* 아바타 이미지 or 아이콘 */}
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting.name}
-                  onClick={() => handleUserMenuClick(setting.path)}
-                >
-                  <Typography textAlign="center">{setting.name}</Typography>
-                </MenuItem>
-              ))}
-              {/* ✅ 관리자 버튼 추가 */}
-              {isAdmin && (
-                <MenuItem onClick={() => navigate("/admin/overview")}>
-                  <Typography textAlign="center">Admin</Typography>
-                </MenuItem>
-              )}
-            </Menu>
-          </Box>
-        ) : (
-          <Box sx={{ display: "flex", gap: 1 }}>
+        {/* 로고 (큰 화면에서만 왼쪽 고정) */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: 0,
+            display: { xs: "none", md: "flex" },
+            alignItems: "center",
+            cursor: "pointer",
+            pl: 2,
+          }}
+          onClick={() => navigate("/")}
+        >
+          <img
+            src="/travel_maker_miniwhite.png"
+            alt="Travel Maker Logo"
+            style={{ height: "50px" }}
+          />
+        </Box>
+
+        {/* Travel Maker 텍스트 (모바일에서만 중앙) */}
+        <Typography
+          component="span" // ✅ 블록 요소로 바꿔줌
+          variant="h6"
+          noWrap
+          onClick={() => navigate("/")} // ✅ 클릭 시 홈으로 이동
+          sx={{
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
+            display: { xs: "flex", md: "none" },
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            cursor: "pointer", // ✅ 손가락 커서
+          }}
+        >
+          Travel Maker
+        </Typography>
+
+        {/* 데스크탑 메뉴 (정중앙 고정) */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: { xs: "none", md: "flex" },
+            gap: 3,
+          }}
+        >
+          {navItems.map((item) => (
             <Button
-              variant="outlined"
+              key={item.name}
               color="inherit"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate(item.path)}
+              sx={{
+                fontSize: "1.05rem",
+                fontWeight: 600,
+              }}
             >
-              로그인
+              {item.name}
             </Button>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => navigate("/signup")}
-            >
-              회원가입
-            </Button>
-          </Box>
-        )}
+          ))}
+        </Box>
+
+        {/* 사용자 메뉴 (오른쪽 고정) */}
+        <Box
+          sx={{
+            position: "absolute",
+            right: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            pr: 2,
+          }}
+        >
+          {isAuthenticated ? (
+            <>
+              <Tooltip title="사용자 메뉴">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={anchorElUser}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                {userMenuItems.map((item) => (
+                  <MenuItem
+                    key={item.name}
+                    onClick={() => handleUserMenuClick(item.path)}
+                  >
+                    <Typography textAlign="center">{item.name}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate("/login")}
+              >
+                로그인
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate("/signup")}
+              >
+                회원가입
+              </Button>
+            </>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
