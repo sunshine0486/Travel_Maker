@@ -50,24 +50,10 @@ export default function EditBoardPage() {
         const data: Board = await getBoardDtl(boardId);
         setCategory(data.category);
         setTitle(data.title);
-        setHashtags(
-          data.hashTag
-            ?.split("#")
-            .filter(Boolean)
-            .map((t) => "#" + t) || []
-        );
+        setHashtags(data.hashtags || []);
         setContent(data.content);
         setInputValue("");
 
-        // 기존 파일을 초기값으로 변환
-        // const files: FileItem[] =
-        //   data.boardFileDtoList?.map((f) => ({
-        //     name: f.oriFileName,
-        //     size: f.fileSize,
-        //     type: "",
-        //     file: new File([], f.oriFileName),
-        //   })) || [];
-        // setInitialFiles(files);
         const files: FileItem[] = await Promise.all(
           (data.boardFileDtoList || []).map(async (f) => {
             try {
@@ -125,7 +111,8 @@ export default function EditBoardPage() {
     formData.append("category", category);
     formData.append("title", title);
     formData.append("content", content);
-    formData.append("hashTag", hashtags.join(""));
+    hashtags.forEach((tag) => formData.append("hashtags", tag));
+
     files.forEach((fileItem) => formData.append("boardFile", fileItem.file));
 
     try {

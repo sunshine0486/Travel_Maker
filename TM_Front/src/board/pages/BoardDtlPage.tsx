@@ -9,6 +9,7 @@ import {
   Button,
   IconButton,
   Chip,
+  Skeleton,
 } from "@mui/material";
 import { Comment, Favorite, FavoriteBorderOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -39,7 +40,6 @@ export default function BoardDtlPage() {
     title: "",
     content: "",
     boardFileDtoList: [],
-    hashTag: "",
     likeCount: 0,
     isLiked: false,
     canEdit: false,
@@ -48,7 +48,10 @@ export default function BoardDtlPage() {
   });
 
   const loadBoardData = () => {
-    getBoardDtl(boardId).then((res) => setData(res));
+    setLoading(true);
+    getBoardDtl(boardId)
+      .then((res) => setData(res))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -85,10 +88,29 @@ export default function BoardDtlPage() {
         .catch((err) => console.log(err));
     }
   };
-  console.log(data.delYn);
+
+  const [loading, setLoading] = useState(true);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, width: 900, mx: "auto" }}>
+        <Skeleton variant="text" width="40%" height={30} />
+        <Skeleton variant="text" width="60%" height={40} />
+        <Skeleton variant="circular" width={45} height={45} sx={{ mt: 2 }} />
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height={200}
+          sx={{ mt: 2 }}
+        />
+      </Box>
+    );
+  }
+
+  if (!data) return <Typography>데이터를 불러올 수 없습니다.</Typography>;
 
   return (
-    <Box sx={{ mx: "auto", p: 3 }}>
+    <Box sx={{ mx: "auto", p: 3, width: "1000px" }}>
       <Stack spacing={2}>
         <Stack spacing={2} alignItems="flex-start">
           {/* 카테고리 */}
@@ -213,7 +235,7 @@ export default function BoardDtlPage() {
       <Divider sx={{ my: 2 }} />
 
       {/* 3. 본문 내용 */}
-      <Paper variant="outlined" sx={{ width: 900, p: 5, mx: "auto" }}>
+      <Paper variant="outlined" sx={{ p: 5, mx: "auto" }}>
         <Box
           sx={{ mb: 2 }}
           dangerouslySetInnerHTML={{
@@ -247,70 +269,61 @@ export default function BoardDtlPage() {
             }
           `}
         </style>
-
-        <Divider sx={{ mb: 2 }} />
-
         {/* 첨부파일 다운로드 */}
-        <Stack spacing={1} sx={{ mt: 2 }}>
-          {(data.boardFileDtoList ?? []).map((file) => (
-            <Button
-              key={file.id}
-              variant="outlined"
-              component="a"
-              href={`/api${file.fileUrl}`}
-              download
-              sx={{
-                textTransform: "none",
-                display: "flex",
-                justifyContent: "space-between", // 좌우 배치
-                alignItems: "center",
-              }}
-              onClick={async () => {
-                try {
-                  // 다운로드 카운트 증가 요청
-                  await increaseDownloadCount(file.id);
+        {data.boardFileDtoList && data.boardFileDtoList.length > 0 && (
+          <>
+            <Divider sx={{ mb: 2 }} />
 
-                  // UI도 즉시 업데이트 (다운로드 횟수 +1)
-                  setData((prev) => ({
-                    ...prev,
-                    boardFileDtoList: prev.boardFileDtoList.map((f) =>
-                      f.id === file.id
-                        ? { ...f, downloadCount: (f.downloadCount ?? 0) + 1 }
-                        : f
-                    ),
-                  }));
-                } catch (err) {
-                  console.error("다운로드 카운트 증가 실패", err);
-                }
-              }}
-            >
-              {/* 왼쪽: 파일명 + 크기 */}
-              <span>
-                {file.oriFileName} &nbsp;&nbsp;({formatSize(file.fileSize)})
-              </span>
-
-              {/* 오른쪽: 다운로드 횟수 */}
-              <Typography variant="body2" color="text.secondary">
-                다운로드 횟수 : {file.downloadCount ?? 0}회
-              </Typography>
-            </Button>
-          ))}
-        </Stack>
+            <Stack spacing={1} sx={{ mt: 2 }}>
+              {data.boardFileDtoList.map((file) => (
+                <Button
+                  key={file.id}
+                  variant="outlined"
+                  component="a"
+                  href={`/api${file.fileUrl}`}
+                  download
+                  sx={{
+                    textTransform: "none",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                  onClick={async () => {
+                    try {
+                      await increaseDownloadCount(file.id);
+                      setData((prev) => ({
+                        ...prev,
+                        boardFileDtoList: prev.boardFileDtoList.map((f) =>
+                          f.id === file.id
+                            ? {
+                                ...f,
+                                downloadCount: (f.downloadCount ?? 0) + 1,
+                              }
+                            : f
+                        ),
+                      }));
+                    } catch (err) {
+                      console.error("다운로드 카운트 증가 실패", err);
+                    }
+                  }}
+                >
+                  <span>
+                    {file.oriFileName} &nbsp;&nbsp;({formatSize(file.fileSize)})
+                  </span>
+                  <Typography variant="body2" color="text.secondary">
+                    다운로드 횟수 : {file.downloadCount ?? 0}회
+                  </Typography>
+                </Button>
+              ))}
+            </Stack>
+          </>
+        )}
 
         {/* 해시태그 */}
         <Stack direction="row" spacing={1} flexWrap="wrap" mt={2}>
-          {data.hashTag
-            ?.split("#")
-            .map((tag) => tag.trim())
-            .filter(Boolean)
-            .map((tag, idx) => (
-              <Chip
-                key={idx}
-                label={`#${tag}`}
-                color="primary"
-                variant="outlined"
-              />
-            ))}
+          {data.hashtags?.map((tag, idx) => (
+            <Chip key={idx} label={tag} color="primary" variant="outlined" />
+          ))}
         </Stack>
       </Paper>
 

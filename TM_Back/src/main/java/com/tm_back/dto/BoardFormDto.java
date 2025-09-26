@@ -32,10 +32,10 @@ public class BoardFormDto {
 
     private List<BoardFileDto> boardFileDtoList = new ArrayList<>();
 
-    private String hashTag;
+//    private String hashTag;
+    private List<String> hashtags;
 
     private LocalDateTime regTime;
-
 
     // 상세페이지 조회용
     private String nickname;
@@ -49,22 +49,35 @@ public class BoardFormDto {
 
     // dto -> entity (게시글 첫 작성시)
     public Board toEntity(Member member) {
-        return Board.builder()
+        Board board = Board.builder()
                 .title(this.title)
                 .content(this.content)
                 .category(this.category)
-                .hashTag(this.hashTag)
                 .views(0)
                 .delYn(DeleteStatus.N)
                 .member(member)
                 .build();
+
+        // Builder로 생성 시 null 방지
+        if (board.getBoardHashtags() == null) {
+            board.setBoardHashtags(new ArrayList<>());
+        }
+
+        return board;
     }
+
 
     // entity -> dto
     private static ModelMapper modelMapper = new ModelMapper();
     public static BoardFormDto toDto(Board board) {
         BoardFormDto dto = modelMapper.map(board, BoardFormDto.class);
         dto.setNickname(board.getMember() != null ? board.getMember().getNickname() : null);
+        // boardHashtags -> List<String> 변환
+        dto.setHashtags(
+                board.getBoardHashtags().stream()
+                        .map(bh -> bh.getHashtag().getHashtagName())
+                        .toList()
+        );
         return dto;
     }
 

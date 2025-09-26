@@ -20,7 +20,7 @@ export default function AdminLayout() {
             sx={{
               "&.active": {
                 backgroundColor: "#e0e7ff", // 선택된 메뉴 배경색
-                color: "#1e3a8a",            // 글씨 색
+                color: "#1e3a8a", // 글씨 색
               },
             }}
           >
@@ -55,7 +55,7 @@ export default function AdminLayout() {
 
           <ListItemButton
             component={NavLink}
-            to="/admin/files"
+            to="/admin/filesetting"
             sx={{
               "&.active": {
                 backgroundColor: "#e0e7ff",

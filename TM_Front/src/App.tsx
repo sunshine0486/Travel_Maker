@@ -47,13 +47,9 @@ export default function App() {
           <Route path="/board/new" element={<AddBoardPage />} />
           <Route path="/board/show/dtl/:id" element={<BoardDtlPage />} />
           <Route path="/board/edit/:id" element={<EditBoardPage />} />
-<<<<<<< Updated upstream
-          <Route path="/admin/filesetting" element={<FileSettingPage />} />
-=======
 
           {/* 게시판 리스트 */}
           <Route path="/board/show/:category" element={<BoardList />} />
->>>>>>> Stashed changes
         </Routes>
       </Container>
     </BrowserRouter>

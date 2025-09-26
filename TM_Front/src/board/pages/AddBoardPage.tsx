@@ -57,7 +57,7 @@ export default function AddBoardPage() {
     formData.append("category", category);
     formData.append("title", title);
     formData.append("content", content);
-    formData.append("hashTag", hashtags.join("")); // 해시태그를 문자열 하나로 합쳐서 append
+    hashtags.forEach((tag) => formData.append("hashtags", tag));
 
     // 파일 반복 append
     files.forEach((fileItem) => formData.append("boardFile", fileItem.file));

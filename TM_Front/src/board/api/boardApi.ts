@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Board, BoardList } from "../type";
 import { getAxiosConfig } from "../../member/api/loginApi";
-import { BASE_URL } from "../../admin/api/adminApi";
+import { BASE_URL } from "../../admin/api/AdminApi";
 
 export const getBoardList = async (category: string): Promise<BoardList[]> => {
   const response = await axios.get(
@@ -86,10 +86,7 @@ export const likeBoard = async (boardId: number) => {
   }
 };
 
-<<<<<<< Updated upstream
-=======
 // 삭제 아니고 delYn을 Y로 수정하는거임
->>>>>>> Stashed changes
 export const deleteBoard = async (boardId: number): Promise<number> => {
   const response = await axios.post(
     `${BASE_URL}/board/delete/${boardId}`,

@@ -8,7 +8,7 @@ export type Board = {
   views: number;
   content: string;
   boardFileDtoList: BoardFileDto[];
-  hashTag?: string; // ["태그1", "태그2"]
+  hashtags?: string[]; // ["태그1", "태그2"]
   likeCount: number;
   isLiked: boolean;
   canEdit: boolean;

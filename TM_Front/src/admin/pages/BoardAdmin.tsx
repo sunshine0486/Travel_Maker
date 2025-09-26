@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort"; // ✅ 누락된 import
-import { getBoards, deleteBoard } from "../api/adminApi";
 import type { Board } from "../../type";
 import SearchModal from "../components/SearchModal";
 import { useNavigate } from "react-router-dom";
+import { deleteBoard, getBoards } from "../api/AdminApi";
 
 export default function BoardAdmin() {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -123,12 +123,18 @@ export default function BoardAdmin() {
               <TableCell>{b.category}</TableCell>
               <TableCell
                 onClick={() => navigate(`/board/${b.id}`)}
-                sx={{ cursor: "pointer", color: "black", textDecoration: "underline" }}
+                sx={{
+                  cursor: "pointer",
+                  color: "black",
+                  textDecoration: "underline",
+                }}
               >
                 {b.title}
               </TableCell>
               <TableCell>{b.author}</TableCell>
-              <TableCell>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(b.createdAt).toLocaleDateString()}
+              </TableCell>
               <TableCell>
                 <Button
                   variant="outlined"

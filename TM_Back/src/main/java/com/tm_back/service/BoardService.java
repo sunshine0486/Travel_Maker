@@ -6,10 +6,7 @@ import com.tm_back.dto.BoardDto;
 import com.tm_back.dto.BoardFileDto;
 import com.tm_back.dto.BoardFormDto;
 import com.tm_back.entity.*;
-import com.tm_back.repository.BoardFileRepository;
-import com.tm_back.repository.BoardRepository;
-import com.tm_back.repository.LikesRepository;
-import com.tm_back.repository.MemberRepository;
+import com.tm_back.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +28,9 @@ public class BoardService {
     private final BoardFileRepository boardFileRepository;
     private final BoardFileService boardFileService;
     private final LikesRepository likesRepository;
+    private final HashtagRepository hashtagRepository;
+    private final BoardHashtagRepository boardHashtagRepository;
+    private final CommentRepository commentRepository;
 
     public Long saveBoard(@Valid BoardFormDto boardFormDto, List<MultipartFile> boardFileList
             , String loginId) throws Exception {
@@ -38,9 +39,38 @@ public class BoardService {
                 .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
 
         Board board = boardFormDto.toEntity(member); // Dto -> Entity
-
         boardRepository.save(board);
+        // 3. 해시태그
+        if (boardFormDto.getHashtags() != null && !boardFormDto.getHashtags().isEmpty()) {
+            for (String tagName : boardFormDto.getHashtags()) {
+                Hashtag hashtag;
+                Optional<Hashtag> optionalHashtag = hashtagRepository.findByHashtagName(tagName);
 
+                if (optionalHashtag.isPresent()) {
+                    // 이미 존재하면 기존 해시태그 사용
+                    hashtag = optionalHashtag.get();
+                } else {
+                    // 존재하지 않으면 새로 생성 후 DB 저장
+                    Hashtag newHashtag = Hashtag.builder()
+                            .hashtagName(tagName)
+                            .build();
+                    hashtag = hashtagRepository.save(newHashtag);
+                }
+
+                // BoardHashtag 테이블에 저장할 엔티티 생성
+                // 반환받은 hashtag.getId()와 게시글 board.getId() 저장
+                BoardHashtag boardHashtag = BoardHashtag.builder()
+                        .id(new BoardHashtagId(board.getId(), hashtag.getId()))
+                        .board(board)
+                        .hashtag(hashtag)
+                        .build();
+
+                // cascade=ALL + orphanRemoval=true 덕분에 board 저장 시 BoardHashtag도 자동으로 DB에 저장됨
+                board.getBoardHashtags().add(boardHashtag);
+            }
+        }
+
+        // 첨부파일
         if (boardFileList != null) {
             for (int i = 0; i < boardFileList.size(); i++) {
                 BoardFile boardFile = new BoardFile();
@@ -66,8 +96,10 @@ public class BoardService {
         // board갖고오기
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
 
-        // 조회수 +1
-//        board.setViews(board.getViews() + 1);
+        //  게시글 해시태그 추출
+        List<String> hashtagNames = board.getBoardHashtags().stream()
+                .map(bh -> bh.getHashtag().getHashtagName()) // BoardHashtag -> Hashtag -> 이름
+                .toList();
 
         // memberId가 이 boardId에 좋아요를 했는지?
         boolean isLiked = false; // 비회원이면
@@ -88,6 +120,8 @@ public class BoardService {
             boardFormDto.setCanEdit(true);
             boardFormDto.setCanDel(true);
         }
+        //해시태그 리스트 DTO에 세팅
+        boardFormDto.setHashtags(hashtagNames);
         System.out.println("--------------------------"+boardFormDto);
         return boardFormDto;
     }
@@ -132,22 +166,50 @@ public class BoardService {
         // 2. 게시글 내용 업데이트
         board.updateBoard(boardFormDto);
 
-        // 3. 기존 첨부파일 삭제
-        // 게시글의 모든 파일 불러오기
+        // 3. 기존 BoardHashtag 삭제
+        if (!board.getBoardHashtags().isEmpty()) {
+            List<BoardHashtag> oldTags = new ArrayList<>(board.getBoardHashtags());
+
+            // 연관관계 끊기
+            for (BoardHashtag bh : oldTags) {
+                bh.setBoard(null);   // 🔥 board 연결 해제
+                bh.setHashtag(null); // 🔥 hashtag 연결 해제
+            }
+
+            board.getBoardHashtags().removeAll(oldTags); // 엔티티 컬렉션에서 제거
+            boardHashtagRepository.deleteAllInBatch(oldTags); // DB에서 한 번에 삭제
+        }
+
+        // 4. 새 해시태그 처리
+        if (boardFormDto.getHashtags() != null && !boardFormDto.getHashtags().isEmpty()) {
+            for (String tagName : boardFormDto.getHashtags()) {
+                Hashtag hashtag = hashtagRepository.findByHashtagName(tagName)
+                        .orElseGet(() -> hashtagRepository.save(
+                                Hashtag.builder().hashtagName(tagName).build()
+                        ));
+
+                BoardHashtag boardHashtag = BoardHashtag.builder()
+                        .id(new BoardHashtagId(board.getId(), hashtag.getId()))
+                        .board(board)
+                        .hashtag(hashtag)
+                        .build();
+
+                board.getBoardHashtags().add(boardHashtag);
+            }
+        }
+
+        // 5. 기존 첨부파일 삭제
         List<BoardFile> oldFiles = boardFileRepository.findByBoardIdOrderByIdAsc(board.getId());
         for (BoardFile oldFile : oldFiles) {
-            // 기존에 저장된 파일명이 있을 경우, 실제 서버 저장소에서 삭제
             if (oldFile.getFileName() != null) {
                 boardFileService.deleteFile(boardImgLocation + "/" + oldFile.getFileName());
             }
-            // DB에서도 해당 파일 레코드 삭제
             boardFileRepository.delete(oldFile);
         }
 
-        // 4. 새 이미지 저장
+        // 6. 새 첨부파일 저장
         if (boardFileList != null && !boardFileList.isEmpty()) {
             for (MultipartFile newFile : boardFileList) {
-                // 실제 업로드된 파일만 처리 (null/빈 파일 제외)
                 if (newFile != null && !newFile.isEmpty()) {
                     BoardFile boardFile = new BoardFile();
                     boardFile.setBoard(board);
@@ -160,9 +222,11 @@ public class BoardService {
     }
 
 
+
     public List<BoardDto> getBoardList(Category category) {
         // 카테고리별 조회인데 삭제여부가 N 인것만 출력
         List<Board> boardList = boardRepository.findByCategoryAndDelYn(category, DeleteStatus.N);
+
 
         List<BoardDto> boardDtoList = new ArrayList<>();
         for (Board board : boardList) {
@@ -174,6 +238,7 @@ public class BoardService {
                     .nickname(board.getMember().getNickname())
                     .views(board.getViews())
                     .likeCount(likesRepository.countByBoardId(board.getId()))
+                    .commentCount(commentRepository.countByBoardId(board.getId()))
                     .regTime(board.getRegTime())
                     .build();
             boardDtoList.add(boardDto);
