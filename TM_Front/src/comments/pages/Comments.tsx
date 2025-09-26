@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import { Box } from "@mui/material";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import { getComment, deleteComment } from "../api/CommentApi";
@@ -10,7 +10,7 @@ interface CommentProps {
   boardId: number;
 }
 
-export default function Comments({ boardId }: CommentProps) {
+export default function Comments({ boardId, isAuthenticated }: CommentProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const { isAuthenticated, loginId, isAdmin } = useAuthStore(); // ✅ 로그인 정보 가져오기
 
@@ -37,21 +37,14 @@ export default function Comments({ boardId }: CommentProps) {
     fetchComments();
   }, [boardId]);
 
-  if (!isAuthenticated) {
-    return (
-      <Box mt={1}>
-        <Divider sx={{ mb: 3 }} />
-        <Typography color="textSecondary">
-          로그인 후 댓글을 작성할 수 있습니다.
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box mt={4}>
       {/* 댓글 입력 */}
-      <CommentInput boardId={boardId} onSuccess={fetchComments} />
+      <CommentInput
+        boardId={boardId}
+        onSuccess={fetchComments}
+        isAuthenticated={isAuthenticated}
+      />
 
       {/* 댓글 목록 */}
       <CommentList

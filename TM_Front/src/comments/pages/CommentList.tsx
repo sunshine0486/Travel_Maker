@@ -70,6 +70,9 @@ export default function CommentList({
 
   const handleDelete = () => {
     if (selectedId !== null) {
+      const confirmed = window.confirm("해당 댓글을 삭제하시겠습니까?");
+      if (!confirmed) return;
+
       onDelete(selectedId);
       handleClose();
     }
