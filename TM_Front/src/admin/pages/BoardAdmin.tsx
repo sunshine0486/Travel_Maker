@@ -12,10 +12,11 @@ import {
   IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import SortIcon from "@mui/icons-material/Sort"; // ✅ 누락된 import
+import { useNavigate } from "react-router-dom";
 import type { Board } from "../../type";
 import SearchModal from "../components/SearchModal";
-import { useNavigate } from "react-router-dom";
+import Sorter from "../components/Sorter";
+import type { SortOption } from "../components/Sorter";
 import { deleteBoard, getBoards } from "../api/AdminApi";
 
 export default function BoardAdmin() {
@@ -24,7 +25,6 @@ export default function BoardAdmin() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [openSearch, setOpenSearch] = useState(false);
-  const [sortNewestFirst, setSortNewestFirst] = useState(true); // ✅ 정렬 상태 (true=최신순, false=오래된순)
 
   const navigate = useNavigate();
 
@@ -55,36 +55,35 @@ export default function BoardAdmin() {
     setFiltered(result);
   };
 
-  // ✅ 작성일 기준 정렬 토글
-  const handleSort = () => {
-    setSortNewestFirst((prev) => !prev);
-
-    const target = filtered ?? boards;
-    const sorted = [...target].sort((a, b) => {
-      const timeA = new Date(a.regTime).getTime();
-      const timeB = new Date(b.regTime).getTime();
-      return sortNewestFirst ? timeA - timeB : timeB - timeA;
-    });
-
-    setFiltered(sorted);
-  };
+  /** 게시판 정렬 옵션 */
+  const sortOptions: SortOption<Board>[] = [
+    {
+      key: "regTime",
+      label: "작성일순",
+      sortFn: (a, b) =>
+        new Date(b.regTime).getTime() - new Date(a.regTime).getTime(),
+    },
+  ];
 
   return (
     <Box p={2}>
+      {/* 제목 + 검색/정렬 버튼 */}
       <Box display="flex" alignItems="center" mb={1}>
         <Typography color="black" variant="h5" sx={{ flexGrow: 1 }}>
           게시판 관리
         </Typography>
-        <IconButton onClick={handleSort}>
-          <SortIcon />
-        </IconButton>
+        <Sorter
+          items={filtered ?? boards}
+          sortOptions={sortOptions}
+          onSorted={setFiltered}
+        />
         <IconButton onClick={() => setOpenSearch(true)}>
           <SearchIcon />
         </IconButton>
       </Box>
 
       <SearchModal
-        open={openSearch} // ✅ 수정
+        open={openSearch}
         onClose={() => setOpenSearch(false)}
         onSearch={handleSearch}
         title="게시판 검색"
@@ -95,6 +94,7 @@ export default function BoardAdmin() {
         ]}
       />
 
+      {/* 테이블 */}
       <Table
         sx={{
           border: "1px solid black",
@@ -111,9 +111,7 @@ export default function BoardAdmin() {
             <TableCell>카테고리</TableCell>
             <TableCell>제목</TableCell>
             <TableCell>작성자</TableCell>
-            <TableCell>
-              작성일 {sortNewestFirst ? "(최신순)" : "(오래된순)"}
-            </TableCell>
+            <TableCell>작성일</TableCell>
             <TableCell>삭제</TableCell>
           </TableRow>
         </TableHead>
@@ -147,6 +145,7 @@ export default function BoardAdmin() {
         </TableBody>
       </Table>
 
+      {/* 페이지네이션 */}
       <Box mt={2} display="flex" justifyContent="center">
         <Pagination
           count={totalPages}
