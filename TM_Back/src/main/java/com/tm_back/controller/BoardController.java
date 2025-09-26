@@ -1,5 +1,7 @@
 package com.tm_back.controller;
 
+import com.tm_back.constant.Category;
+import com.tm_back.dto.BoardDto;
 import com.tm_back.dto.BoardFormDto;
 import com.tm_back.entity.Member;
 import com.tm_back.repository.MemberRepository;
@@ -26,6 +28,13 @@ public class BoardController {
     private final BoardService boardService;
     private final BoardFileService boardFileService;
     private final MemberRepository memberRepository;
+
+    // 카테고리별 조회
+    @GetMapping("/board/show/{category}")
+    public List<BoardDto> getBoardList(@PathVariable Category category){
+        return boardService.getBoardList(category);
+    }
+
 
     // 이미지 url 반환
     @PostMapping("/board/image")
@@ -66,7 +75,7 @@ public class BoardController {
     }
 
     // 게시글 상세 조회
-    @GetMapping("/board/show/{boardId}")
+    @GetMapping("/board/show/dtl/{boardId}")
     public BoardFormDto getBoardDtl(@PathVariable Long boardId,
                                     Authentication authentication
     ) {
@@ -103,6 +112,17 @@ public class BoardController {
         boardService.likeBoard(boardId, memberId);
     }
 
+    // 게시글 조회수 +1
+    @PostMapping("/board/show/view/{boardId}")
+    public ResponseEntity<Long> increaseViewCount(@PathVariable Long boardId) {
+        try {
+            Long updatedId = boardService.increaseViewCount(boardId);
+            return ResponseEntity.ok(updatedId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     // 수정일도 확인해야함
     @PutMapping("/board/{boardId}")
     public ResponseEntity<?> updateBoard(
@@ -124,9 +144,16 @@ public class BoardController {
         }
     }
 
-    @DeleteMapping("/board/{boardId}")
+    // 게시글 삭제 : delYn 을 Y로
+    @PostMapping("/board/delete/{boardId}")
     public Long deleteBoard(@PathVariable("boardId") Long boardId) throws Exception {
         return boardService.deleteBoard(boardId);
     }
 
+
+    // 게시글 복구 : delYn 을 N으로
+    @PostMapping("/admin/board/{boardId}")
+    public Long restoreBoard(@PathVariable("boardId") Long boardId) throws Exception {
+        return boardService.restoreBoard(boardId);
+    }
 }

@@ -4,21 +4,22 @@ import com.tm_back.constant.Category;
 import com.tm_back.constant.DeleteStatus;
 import com.tm_back.dto.BoardFormDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "board")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder
 public class Board extends BaseTimeEntity {
 
     @Id
-    @Column(name="board_id")
+    @Column(name = "board_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -35,7 +36,9 @@ public class Board extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer views; //초기값 0
 
-    private String hashTag; // null 허용
+    //    private String hashTag; // null 허용
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardHashtag> boardHashtags = new ArrayList<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -49,6 +52,6 @@ public class Board extends BaseTimeEntity {
         this.category = boardFormDto.getCategory();
         this.title = boardFormDto.getTitle();
         this.content = boardFormDto.getContent();
-        this.hashTag = boardFormDto.getHashTag();
+//        this.hashTag = boardFormDto.getHashTag();
     }
 }

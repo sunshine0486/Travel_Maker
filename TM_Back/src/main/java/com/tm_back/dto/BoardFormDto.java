@@ -32,36 +32,52 @@ public class BoardFormDto {
 
     private List<BoardFileDto> boardFileDtoList = new ArrayList<>();
 
-    private String hashTag;
+//    private String hashTag;
+    private List<String> hashtags;
 
     private LocalDateTime regTime;
-
 
     // 상세페이지 조회용
     private String nickname;
     private Integer views;
     private LocalDateTime updateTime;
     private Boolean isLiked; //어떤 회원이 불러온 게시글에 좋아요를 했는지 여부
-    private Integer likeCount; // 게시그의 좋아요 개수
+    private Integer likeCount; // 게시글의 좋아요 개수
+    private Boolean canEdit; //작성자면 수정가능
+    private Boolean canDel; //작성자 및 관리자면 삭제가능
+    private DeleteStatus delYn; // 삭제면 복원버튼 나오게
 
     // dto -> entity (게시글 첫 작성시)
     public Board toEntity(Member member) {
-        return Board.builder()
+        Board board = Board.builder()
                 .title(this.title)
                 .content(this.content)
                 .category(this.category)
-                .hashTag(this.hashTag)
                 .views(0)
                 .delYn(DeleteStatus.N)
                 .member(member)
                 .build();
+
+        // Builder로 생성 시 null 방지
+        if (board.getBoardHashtags() == null) {
+            board.setBoardHashtags(new ArrayList<>());
+        }
+
+        return board;
     }
+
 
     // entity -> dto
     private static ModelMapper modelMapper = new ModelMapper();
     public static BoardFormDto toDto(Board board) {
         BoardFormDto dto = modelMapper.map(board, BoardFormDto.class);
         dto.setNickname(board.getMember() != null ? board.getMember().getNickname() : null);
+        // boardHashtags -> List<String> 변환
+        dto.setHashtags(
+                board.getBoardHashtags().stream()
+                        .map(bh -> bh.getHashtag().getHashtagName())
+                        .toList()
+        );
         return dto;
     }
 

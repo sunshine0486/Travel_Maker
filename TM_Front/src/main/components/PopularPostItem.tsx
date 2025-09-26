@@ -8,9 +8,7 @@ interface Props {
 export default function PopularPostItem({ rank, title }: Props) {
   return (
     <ListItem>
-      <ListItemText
-        primary={`${rank}. ${title}`}
-      />
+      <ListItemText primary={`${rank}. ${title}`} />
     </ListItem>
   );
 }

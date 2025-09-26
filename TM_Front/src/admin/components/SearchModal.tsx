@@ -43,15 +43,22 @@ export default function SearchModal({
   };
 
   return (
-    <Dialog open={open} onClose={handleCancel}>
+    <Dialog
+      open={open}
+      onClose={handleCancel}
+      fullWidth
+      sx={{ "& .MuiDialog-paper": { maxWidth: 400 } }}
+    >
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+      <DialogContent
+        sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+      >
         <TextField
           select
           label="검색 조건"
           value={field}
           onChange={(e) => setField(e.target.value)}
-          sx={{mt:1}}
+          sx={{ mt: 1 }}
         >
           {options.map((opt) => (
             <MenuItem key={opt.value} value={opt.value}>

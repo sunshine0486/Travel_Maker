@@ -1,7 +1,15 @@
 import axios from "axios";
-import type { Board } from "../type";
+import type { Board, BoardList } from "../type";
 import { getAxiosConfig } from "../../member/api/loginApi";
 import { BASE_URL } from "../../admin/api/AdminApi";
+
+export const getBoardList = async (category: string): Promise<BoardList[]> => {
+  const response = await axios.get(
+    `${BASE_URL}/board/show/${category}`,
+    getAxiosConfig()
+  );
+  return response.data;
+};
 
 // 이미지를 서버로 넘겨 url 받아오기
 export const getImgUrl = async (file: File) => {
@@ -48,7 +56,7 @@ export const updateBoard = async (boardId: number, formData: FormData) => {
 // 게시글 상세 조회
 export const getBoardDtl = async (boardId: number): Promise<Board> => {
   const response = await axios.get(
-    `${BASE_URL}/board/show/${boardId}`,
+    `${BASE_URL}/board/show/dtl/${boardId}`,
     getAxiosConfig()
   );
   console.log(response.data);
@@ -71,11 +79,23 @@ export const likeBoard = async (boardId: number) => {
     throw err;
   }
 };
+
+// 삭제 아니고 delYn을 Y로 수정하는거임
 export const deleteBoard = async (boardId: number): Promise<number> => {
-  const response = await axios.delete(
-    `${BASE_URL}/board/${boardId}`,
+  const response = await axios.post(
+    `${BASE_URL}/board/delete/${boardId}`,
+    null,
     getAxiosConfig()
   );
   console.log(response.data);
   return response.data;
+};
+
+// 복원 버튼 누를시 delYn을 N으로
+export const restoreBoard = async (boardId: number) => {
+  return await axios.post(
+    `${BASE_URL}/admin/board/${boardId}`,
+    null,
+    getAxiosConfig()
+  );
 };

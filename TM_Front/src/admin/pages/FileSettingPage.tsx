@@ -9,7 +9,7 @@ import {
   Alert,
 } from "@mui/material";
 import type { FileSettingDto } from "../../board/type";
-import { getFileSetting, updateFileSetting } from "../api/adminApi";
+import { getFileSetting, updateFileSetting } from "../api/AdminApi";
 
 export default function FileSettingPage() {
   const [maxFiles, setMaxFiles] = useState<number>();
@@ -17,6 +17,7 @@ export default function FileSettingPage() {
   const [allowedExtensions, setAllowedExtensions] = useState<string>();
   const [loading, setLoading] = useState<boolean>(true);
   const [openToast, setOpenToast] = useState(false);
+  const [extensionError, setExtensionError] = useState<string>("");
 
   useEffect(() => {
     const fetchSetting = async () => {
@@ -51,7 +52,7 @@ export default function FileSettingPage() {
   return (
     <Box sx={{ padding: 3, margin: "0 auto", maxWidth: 600 }}>
       <Typography variant="h5" align="center" gutterBottom>
-        첨부파일 설정 관리
+        <h4>첨부파일 설정 관리</h4>
       </Typography>
       <Divider></Divider>
       <br></br>
@@ -62,7 +63,13 @@ export default function FileSettingPage() {
         <TextField
           label="첨부파일 최대 업로드 개수"
           value={maxFiles ?? ""}
-          onChange={(e) => setMaxFiles(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^\d*$/.test(val)) {
+              // 숫자만 허용
+              setMaxFiles(Number(val));
+            }
+          }}
           variant="outlined"
           sx={{ minWidth: "200px" }}
         />
@@ -75,7 +82,13 @@ export default function FileSettingPage() {
         <TextField
           label="파일별 최대 용량 (MB)"
           value={maxFileSize ?? ""}
-          onChange={(e) => setMaxFileSize(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^\d*\.?\d*$/.test(val)) {
+              // 숫자 및 소수점 허용
+              setMaxFileSize(Number(val));
+            }
+          }}
           variant="outlined"
           sx={{ minWidth: "200px" }}
         />
@@ -87,14 +100,28 @@ export default function FileSettingPage() {
           label="업로드 허용 파일 확장자"
           placeholder="확장자 사이를 쉼표로 입력해주세요"
           value={allowedExtensions ?? ""}
-          onChange={(e) => setAllowedExtensions(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setAllowedExtensions(val);
+
+            if (/\s/.test(val)) {
+              setExtensionError("공백 없이 쉼표로 구분해주세요.");
+            } else {
+              setExtensionError("");
+            }
+          }}
           variant="outlined"
+          error={!!extensionError}
+          helperText={
+            extensionError || "쉼표로 구분하여 입력하세요. 예: jpg,png,gif"
+          }
           sx={{
             width: `${Math.max(10, (allowedExtensions?.length ?? 0) + 1)}ch`,
             minWidth: "200px",
           }}
         />
       </Box>
+
       {/* 저장 버튼 */}
       <Box>
         <Button variant="contained" color="primary" onClick={handleSave}>

@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
-import { getComments, deleteComment } from "../api/AdminApi";
 import type { Comment } from "../../type";
 import SearchModal from "../components/SearchModal";
 import { useNavigate } from "react-router-dom";
+import { deleteComment, getComments } from "../api/AdminApi";
 
 export default function CommentAdmin() {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -27,7 +27,7 @@ export default function CommentAdmin() {
   const [sortNewestFirst, setSortNewestFirst] = useState(true); // ✅ 정렬 상태 (true=최신순, false=오래된순)
 
   // 지금은 임시로 1번 게시판 기준
-//   const boardId = 1;
+  //   const boardId = 1;
   const navigate = useNavigate();
 
   const fetchComments = async (p: number) => {
@@ -123,9 +123,13 @@ export default function CommentAdmin() {
           {(filtered ?? comments).map((c) => (
             <TableRow key={c.id}>
               <TableCell>{c.author}</TableCell>
-              <TableCell 
+              <TableCell
                 onClick={() => navigate(`/board/${c.boardId}`)}
-                sx={{ cursor: "pointer", color: "black", textDecoration: "underline" }}
+                sx={{
+                  cursor: "pointer",
+                  color: "black",
+                  textDecoration: "underline",
+                }}
               >
                 {c.content}
               </TableCell>

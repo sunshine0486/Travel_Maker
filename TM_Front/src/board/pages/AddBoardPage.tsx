@@ -57,7 +57,7 @@ export default function AddBoardPage() {
     formData.append("category", category);
     formData.append("title", title);
     formData.append("content", content);
-    formData.append("hashTag", hashtags.join("")); // 해시태그를 문자열 하나로 합쳐서 append
+    hashtags.forEach((tag) => formData.append("hashtags", tag));
 
     // 파일 반복 append
     files.forEach((fileItem) => formData.append("boardFile", fileItem.file));
@@ -74,7 +74,7 @@ export default function AddBoardPage() {
       setSnackbarOpen(true);
 
       // 필요시 저장 후 이동
-      navigate(`/board/${boardId}`);
+      navigate(`/board/show/dtl/${boardId}`);
     } catch (error) {
       console.error(error);
       // 저장 실패 시 이동하지 않고 오류 메시지 표시

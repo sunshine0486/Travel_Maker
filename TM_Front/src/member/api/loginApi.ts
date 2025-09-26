@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig } from "axios";
 import type { User } from "../../type";
-import { BASE_URL } from "../../admin/api/adminApi";
+import { BASE_URL } from "../../admin/api/AdminApi";
 
 export const getAuthToken = async (loginId: User) => {
   const response = await axios.post(`${BASE_URL}/login`, loginId);

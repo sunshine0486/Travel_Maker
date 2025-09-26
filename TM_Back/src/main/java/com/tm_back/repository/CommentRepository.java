@@ -15,5 +15,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 특정 부모 댓글의 자식 개수 조회
     long countByParentIdAndDelYn(Long parentId, DeleteStatus delYn);
     Page<Comment> findByDelYn(DeleteStatus delYn, Pageable pageable);
+
+    Integer countByBoardId(Long id);
 }
 
