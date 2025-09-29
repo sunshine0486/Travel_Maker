@@ -35,11 +35,11 @@ export default function MemberAdmin() {
     fetchMembers(page);
   }, [page]);
 
-  const handleSearch = (field: string, keyword: string) => {
+  const handleSearch = (field: string, keywords: string[]) => {
     const result = members.filter((m) => {
-      if (field === "loginId") return m.loginId.includes(keyword);
-      if (field === "email") return m.email.includes(keyword);
-      if (field === "nickname") return m.nickname.includes(keyword);
+      if (field === "loginId") return keywords.some((kw) => m.loginId.includes(kw));
+      if (field === "email") return keywords.some((kw) => m.email.includes(kw));
+      if (field === "nickname") return keywords.some((kw) => m.nickname.includes(kw));
       return true;
     });
     setFiltered(result);

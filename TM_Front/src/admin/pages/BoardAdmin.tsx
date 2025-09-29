@@ -46,11 +46,11 @@ export default function BoardAdmin() {
     await fetchBoards(page);
   };
 
-  const handleSearch = (field: string, keyword: string) => {
+  const handleSearch = (field: string, keywords: string[]) => {
     const result = boards.filter((b) => {
-      if (field === "category") return b.category.includes(keyword);
-      if (field === "title") return b.title.includes(keyword);
-      if (field === "nickname") return b.nickname.includes(keyword);
+      if (field === "category") return keywords.some((kw) => b.category.includes(kw));
+      if (field === "title") return keywords.some((kw) => b.title.includes(kw));
+      if (field === "nickname") return keywords.some((kw) => b.nickname.includes(kw));
       return true;
     });
     setFiltered(result);

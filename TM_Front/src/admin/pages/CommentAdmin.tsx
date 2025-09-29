@@ -45,10 +45,10 @@ export default function CommentAdmin() {
     await fetchComments(page);
   };
 
-  const handleSearch = (field: string, keyword: string) => {
+  const handleSearch = (field: string, keywords: string[]) => {
     const result = comments.filter((c) => {
-      if (field === "author") return c.author.includes(keyword);
-      if (field === "content") return c.content.includes(keyword);
+      if (field === "author") return keywords.some((kw) => c.author.includes(kw));
+      if (field === "content") return keywords.some((kw) => c.content.includes(kw));
       return true;
     });
     setFiltered(result);
