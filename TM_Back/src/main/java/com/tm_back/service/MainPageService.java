@@ -1,5 +1,6 @@
 package com.tm_back.service;
 
+import com.tm_back.constant.DeleteStatus;
 import com.tm_back.dto.BoardDto;
 import com.tm_back.dto.BoardFormDto;
 import com.tm_back.dto.PagedResponse;
@@ -31,7 +32,7 @@ public class MainPageService {
     private final VisitorCntRepository visitorCntRepository;
 
     public ResponseEntity<List<BoardFormDto>> getCurrentBoards() {
-        List<Board> boards = boardRepository.findTop3ByOrderByRegTimeDesc();
+        List<Board> boards = boardRepository.findTop3ByDelYnOrderByRegTimeDesc(DeleteStatus.N);
         List<BoardFormDto> dtos = boards.stream()
                 .map(BoardFormDto::toDto)
                 .collect(Collectors.toList());
