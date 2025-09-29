@@ -30,14 +30,26 @@ export default function PostCard({ id, title, content }: Props) {
 
   return (
     <Card
-      sx={{ display: "flex", mb: 2, cursor: "pointer" }}
+      sx={{
+        display: "flex",
+        mb: 2,
+        cursor: "pointer",
+        p: 2, // 👉 카드 전체 내부 패딩
+        borderRadius: 2,
+      }}
       onClick={() => navigate(`/board/show/dtl/${id}`)}
     >
       {/* 왼쪽: 본문에 포함된 첫 번째 이미지 */}
       {imageUrl && (
         <CardMedia
           component="img"
-          sx={{ width: 150, objectFit: "cover", mr: 2 }}
+          sx={{
+            width: 150,
+            height: 120,
+            objectFit: "cover",
+            borderRadius: 1,
+            mr: 2, // 👉 이미지와 텍스트 사이 간격
+          }}
           image={imageUrl}
           alt={title}
         />
@@ -45,8 +57,10 @@ export default function PostCard({ id, title, content }: Props) {
 
       {/* 오른쪽: 제목 + 본문 */}
       <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-        <CardContent>
-          <Typography variant="h6" noWrap>
+        <CardContent sx={{ p: 0 }}>
+          {" "}
+          {/* 👉 기본 패딩 제거 */}
+          <Typography variant="h6" gutterBottom noWrap>
             {title}
           </Typography>
           <Typography
@@ -57,6 +71,7 @@ export default function PostCard({ id, title, content }: Props) {
               WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
+              mt: 0.5, // 👉 본문과 제목 사이 간격
             }}
           >
             {truncateText(content, 120)}
