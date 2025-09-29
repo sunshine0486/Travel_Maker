@@ -14,14 +14,14 @@ import { Box, Button, IconButton, Pagination } from "@mui/material";
 import axios from "axios";
 import { BASE_URL } from "../../admin/api/AdminApi";
 import SearchIcon from "@mui/icons-material/Search";
-import SortIcon from "@mui/icons-material/Sort";
 import SearchModal from "../../admin/components/SearchModal";
+import Sorter from "../../admin/components/Sorter"; // ✅ 추가
+import type { SortOption } from "../../admin/components/Sorter"; // ✅ 추가
 
 export default function BoardList() {
   const [data, setData] = useState<BoardList[]>([]);
-  const [originalData, setOriginalData] = useState<BoardList[]>([]); // 원본 보관
+  const [originalData, setOriginalData] = useState<BoardList[]>([]);
   const [openSearch, setOpenSearch] = useState(false);
-  const [sortNewestFirst, setSortNewestFirst] = useState(true);
 
   const params = useParams();
   const category = params.category ?? "";
@@ -31,7 +31,6 @@ export default function BoardList() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
 
-  // 현재 페이지에 맞는 데이터 계산
   const displayedRows = data.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
@@ -44,11 +43,13 @@ export default function BoardList() {
       width: 100,
       headerAlign: "center",
       align: "center",
+      sortable: false,
     },
     {
       field: "title",
       headerName: "제목",
       flex: 1,
+      sortable: false,
       renderCell: (params: GridCellParams) => {
         const title = params.value as string;
         const commentCount = (params.row.commentCount ?? 0) as number;
@@ -85,6 +86,7 @@ export default function BoardList() {
       width: 120,
       headerAlign: "center",
       align: "center",
+      sortable: false,
     },
     {
       field: "views",
@@ -93,6 +95,7 @@ export default function BoardList() {
       type: "number",
       headerAlign: "center",
       align: "center",
+      sortable: false,
     },
     {
       field: "likeCount",
@@ -101,6 +104,7 @@ export default function BoardList() {
       type: "number",
       headerAlign: "center",
       align: "center",
+      sortable: false,
     },
     {
       field: "regTime",
@@ -108,6 +112,7 @@ export default function BoardList() {
       width: 150,
       headerAlign: "center",
       align: "center",
+      sortable: false,
       renderCell: (params: GridCellParams) => (
         <div>{formatDateTime(params.value as string)}</div>
       ),
@@ -117,10 +122,16 @@ export default function BoardList() {
   const loadBoardData = async () => {
     if (!category) return;
     try {
+      // const boards = await getBoardList(category);
+      // setData(boards);
+      // setOriginalData(boards);
+      // console.log("boards loaded:", boards);
       const boards = await getBoardList(category);
-      setData(boards);
-      setOriginalData(boards); // 원본도 저장
-      console.log("boards loaded:", boards);
+    // ✅ id desc 정렬 후 상태 저장
+      const sortedBoards = [...boards].sort((a, b) => b.id! - a.id!);
+      setData(sortedBoards);
+      setOriginalData(sortedBoards);
+      console.log("boards loaded:", sortedBoards);
     } catch (error) {
       console.error("게시글 불러오기 실패:", error);
     }
@@ -133,22 +144,31 @@ export default function BoardList() {
   const categoryLabel =
     CATEGORIES_MAP[category?.toUpperCase() ?? ""] || category;
 
-  // 정렬 버튼 클릭
-  const handleSort = () => {
-    setSortNewestFirst((prev) => !prev);
-    const sorted = [...data].sort((a, b) => {
-      const timeA = new Date(a.regTime).getTime();
-      const timeB = new Date(b.regTime).getTime();
-      return sortNewestFirst ? timeA - timeB : timeB - timeA;
-    });
-    setData(sorted);
-    setPage(1);
-  };
+  /** 게시글 정렬 옵션 */
+  const sortOptions: SortOption<BoardList>[] = [
+    {
+      key: "regTime",
+      label: "작성일순",
+      sortFn: (a, b) =>
+        new Date(b.regTime).getTime() - new Date(a.regTime).getTime(),
+    },
+    {
+      key: "views",
+      label: "조회수순",
+      sortFn: (a, b) => b.views - a.views,
+    },
+    {
+      key: "likeCount",
+      label: "좋아요순",
+      sortFn: (a, b) => b.likeCount - a.likeCount,
+    },
+  ];
 
   return (
     <Box sx={{ p: 2 }}>
       {/* 카테고리 라벨 */}
       <h2>{categoryLabel}</h2>
+
       {/* 버튼 줄: 정렬, 검색 (왼쪽) + 글쓰기 (오른쪽) */}
       <Box
         display="flex"
@@ -158,9 +178,11 @@ export default function BoardList() {
       >
         {/* 왼쪽: 정렬, 검색 버튼 */}
         <Box display="flex" alignItems="center" gap={1}>
-          <IconButton size="small" onClick={handleSort}>
-            <SortIcon />
-          </IconButton>
+          <Sorter
+            items={data}
+            sortOptions={sortOptions}
+            onSorted={setData}
+          />
           <IconButton size="small" onClick={() => setOpenSearch(true)}>
             <SearchIcon />
           </IconButton>
@@ -182,39 +204,9 @@ export default function BoardList() {
       <SearchModal
         open={openSearch}
         onClose={() => setOpenSearch(false)}
-        // onSearch={(field, keyword) => {
-        //   const keywords = keyword
-        //     .split(/\s+/) // 띄어쓰기 기준 분리
-        //     .map((k) => k.trim().toLowerCase())
-        //     .filter(Boolean);
-
-        //   const filtered = originalData.filter((b) => {
-        //     if (field === "hashtags") {
-        //       if (!Array.isArray(b.hashtags)) return false;
-        //       const tags = b.hashtags.map((t) =>
-        //         t.toLowerCase().replace(/^#/, "")
-        //       );
-        //       // 🔥 모든 키워드가 포함되어야 함 (AND 조건)
-        //       return keywords.every((kw) =>
-        //         tags.some((tag) => tag.includes(kw))
-        //       );
-        //     }
-
-        //     // 일반 필드 검색 (OR 조건 그대로)
-        //     const value = b[field as keyof BoardList];
-        //     return value
-        //       ?.toString()
-        //       .toLowerCase()
-        //       .includes(keywords[0] ?? "");
-        //   });
-
-        //   setData(filtered);
-        //   setPage(1);
-        // }}
         onSearch={(field, keywords) => {
-          const filtered = data.filter((b) => {
+          const filtered = originalData.filter((b) => {
             if (field === "hashtags") {
-              // 모두 포함하는지 확인 (AND 조건)
               const tags = b.hashtags.map((t) => t.toLowerCase());
               return keywords.every((kw) =>
                 tags.some((tag) =>
@@ -230,13 +222,14 @@ export default function BoardList() {
             }
           });
           setData(filtered);
+          setPage(1);
         }}
         title="게시판 검색"
         options={[
           { value: "title", label: "제목" },
           { value: "content", label: "본문" },
           { value: "nickname", label: "작성자" },
-          { value: "hashtags", label: "해시태그" }, // <-- 정확한 키값
+          { value: "hashtags", label: "해시태그" },
         ]}
       />
 
@@ -248,16 +241,16 @@ export default function BoardList() {
         disableRowSelectionOnClick
         hideFooter
         initialState={{
-          sorting: {
-            sortModel: [{ field: "id", sort: "desc" }],
-          },
+          // sorting: {
+          //   sortModel: [{ field: "id", sort: "desc" }],
+          // },
         }}
       />
 
       {/* 페이징 */}
       <Box mt={2} display="flex" justifyContent="center">
         <Pagination
-          count={Math.min(5, Math.ceil(data.length / rowsPerPage))} // 최대 5페이지
+          count={Math.min(5, Math.ceil(data.length / rowsPerPage))}
           page={page}
           onChange={(_, v) => setPage(v)}
         />
