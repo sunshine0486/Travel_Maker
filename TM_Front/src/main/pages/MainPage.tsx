@@ -32,7 +32,7 @@ export default function MainPage() {
   return (
     <Box sx={{ my: 4, bgcolor: "#fff", minHeight: "100vh" }}>
       {/* 소개 영역 */}
-      <Paper elevation={3} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+      <Paper elevation={1} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
         <Typography variant="h5" gutterBottom>
           ✈️ 당신의 여행 이야기를 들려주세요
         </Typography>
@@ -44,7 +44,7 @@ export default function MainPage() {
       {/* 카테고리 */}
       <Box sx={{ mt: 5 }}>
         <Typography variant="h6" gutterBottom>
-          카테고리
+          <h3>카테고리</h3>
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           <Grid size={{ xs: 6, md: 3 }}>
@@ -67,7 +67,7 @@ export default function MainPage() {
         {/* 최신 게시글 (왼쪽) */}
         <Grid size={{ xs: 12, md: 8 }}>
           <Typography variant="h6" gutterBottom>
-            최신 게시글
+            <h3>최신 게시글</h3>
           </Typography>
 
           <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -94,7 +94,7 @@ export default function MainPage() {
         {/* 인기 게시글 + 사이트 통계 (오른쪽) */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Typography variant="h6" gutterBottom>
-            인기 게시글
+            <h3>인기 게시글</h3>
           </Typography>
 
           <Box sx={{ mt: 1 }}>
@@ -127,6 +127,9 @@ export default function MainPage() {
           {/* SiteStats는 인기 게시글 밑에 배치 */}
           {stats && (
             <Box sx={{ mt: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                <h3>사이트 통계</h3>
+              </Typography>
               <SiteStats
                 totalPosts={stats.boardCnt}
                 totalMembers={stats.memberCnt}
