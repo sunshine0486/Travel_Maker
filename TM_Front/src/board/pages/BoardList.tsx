@@ -26,7 +26,7 @@ export default function BoardList() {
   const params = useParams();
   const category = params.category ?? "";
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isAdmin } = useAuthStore();
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
@@ -127,7 +127,7 @@ export default function BoardList() {
       // setOriginalData(boards);
       // console.log("boards loaded:", boards);
       const boards = await getBoardList(category);
-    // ✅ id desc 정렬 후 상태 저장
+      // ✅ id desc 정렬 후 상태 저장
       const sortedBoards = [...boards].sort((a, b) => b.id! - a.id!);
       setData(sortedBoards);
       setOriginalData(sortedBoards);
@@ -178,26 +178,27 @@ export default function BoardList() {
       >
         {/* 왼쪽: 정렬, 검색 버튼 */}
         <Box display="flex" alignItems="center" gap={1}>
-          <Sorter
-            items={data}
-            sortOptions={sortOptions}
-            onSorted={setData}
-          />
+          <Sorter items={data} sortOptions={sortOptions} onSorted={setData} />
           <IconButton size="small" onClick={() => setOpenSearch(true)}>
             <SearchIcon />
           </IconButton>
         </Box>
 
         {/* 오른쪽: 글쓰기 버튼 */}
-        {isAuthenticated && (
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => navigate("/board/new", { state: { category } })}
-          >
-            글쓰기
-          </Button>
-        )}
+        {
+          // notice 카테고리일 경우: 관리자만 가능
+          ((category === "NOTICE" && isAdmin) ||
+            // notice가 아닐 경우: 로그인한 유저 또는 관리자 가능
+            (category !== "NOTICE" && (isAuthenticated || isAdmin))) && (
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate("/board/new", { state: { category } })}
+            >
+              글쓰기
+            </Button>
+          )
+        }
       </Box>
 
       {/* 검색 모달 */}
@@ -240,11 +241,13 @@ export default function BoardList() {
         getRowId={(row) => row.id}
         disableRowSelectionOnClick
         hideFooter
-        initialState={{
-          // sorting: {
-          //   sortModel: [{ field: "id", sort: "desc" }],
-          // },
-        }}
+        initialState={
+          {
+            // sorting: {
+            //   sortModel: [{ field: "id", sort: "desc" }],
+            // },
+          }
+        }
       />
 
       {/* 페이징 */}

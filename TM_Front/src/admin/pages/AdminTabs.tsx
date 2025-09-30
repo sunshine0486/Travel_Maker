@@ -35,8 +35,8 @@ export default function AdminTabs() {
 
   return (
     <Box p={2}>
-      <Typography variant="h4" gutterBottom>
-        관리자 페이지
+      <Typography variant="h5" gutterBottom>
+        <h4>전체 데이터 조회</h4>
       </Typography>
       <Tabs value={value} onChange={handleChange} aria-label="admin tabs">
         <Tab
@@ -45,7 +45,7 @@ export default function AdminTabs() {
           aria-controls="admin-tabpanel-0"
         />
         <Tab
-          label="게시판 관리"
+          label="게시글 관리"
           id="admin-tab-1"
           aria-controls="admin-tabpanel-1"
         />

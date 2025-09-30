@@ -170,7 +170,7 @@ export const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
         }
 
         if (file.size > maxFileSize) {
-          alert(`파일 용량은 최대 ${maxFileSize}까지 가능합니다.`);
+          alert(`파일 용량은 최대 ${formatSize(maxFileSize)}까지 가능합니다.`);
           return;
         }
 
@@ -211,7 +211,7 @@ export const QuillEditor = forwardRef<QuillEditorHandle, QuillEditorProps>(
         }
 
         if (file.size > maxFileSize) {
-          alert(`파일 용량은 최대 ${maxFileSize}까지 가능합니다.`);
+          alert(`파일 용량은 최대 ${formatSize(maxFileSize)}까지 가능합니다.`);
           continue;
         }
 

@@ -135,6 +135,8 @@ export default function SignUp() {
       body: JSON.stringify(encodedForm),
     });
 
+    console.log(encodedForm);
+
     if (res.status === 409) {
       alert("이미 존재하는 아이디입니다.");
       return;

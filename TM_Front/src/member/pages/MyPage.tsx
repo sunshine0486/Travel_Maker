@@ -58,6 +58,10 @@ export default function MyPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
+  const encodeBase64 = (str: string) => {
+    return btoa(unescape(encodeURIComponent(str)));
+  };
+
   // 페이지 접근 시 유저 정보 불러오기
   useEffect(() => {
     const fetchUser = async () => {
@@ -171,12 +175,19 @@ export default function MyPage() {
       }
     }
 
+    const encodedForm = {
+      ...form,
+      birth: encodeBase64(form.birth),
+      phoneNumber: encodeBase64(form.phoneNumber),
+      zipcode: encodeBase64(form.zipcode),
+      address: encodeBase64(form.address),
+      addressDetail: encodeBase64(form.addressDetail),
+    };
+
     try {
       const token = sessionStorage.getItem("jwt");
-      await axios.put(`${BASE_URL}/mypage/${form.loginId}`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.put(`${BASE_URL}/mypage/${form.loginId}`, encodedForm, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert("회원 정보가 업데이트 되었습니다.");
       setOriginalForm({ ...form });

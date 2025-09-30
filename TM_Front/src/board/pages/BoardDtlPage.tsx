@@ -82,7 +82,7 @@ export default function BoardDtlPage() {
   };
 
   const deleteBoardData = (id: number) => {
-    if (confirm(`${id}번 데이터를 삭제하시겠습니까?`)) {
+    if (confirm(`게시글을 삭제하시겠습니까?`)) {
       deleteBoard(id)
         .then(() => {
           navigate(`/board/show/${data.category}`);

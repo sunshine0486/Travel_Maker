@@ -48,9 +48,11 @@ export default function BoardAdmin() {
 
   const handleSearch = (field: string, keywords: string[]) => {
     const result = boards.filter((b) => {
-      if (field === "category") return keywords.some((kw) => b.category.includes(kw));
+      if (field === "category")
+        return keywords.some((kw) => b.category.includes(kw));
       if (field === "title") return keywords.some((kw) => b.title.includes(kw));
-      if (field === "nickname") return keywords.some((kw) => b.nickname.includes(kw));
+      if (field === "nickname")
+        return keywords.some((kw) => b.nickname.includes(kw));
       return true;
     });
     setFiltered(result);
@@ -71,7 +73,7 @@ export default function BoardAdmin() {
       {/* 제목 + 검색/정렬 버튼 */}
       <Box display="flex" alignItems="center" mb={1}>
         <Typography color="black" variant="h5" sx={{ flexGrow: 1 }}>
-          게시판 관리
+          게시글 관리
         </Typography>
         <Sorter
           items={filtered ?? boards}
@@ -87,7 +89,7 @@ export default function BoardAdmin() {
         open={openSearch}
         onClose={() => setOpenSearch(false)}
         onSearch={handleSearch}
-        title="게시판 검색"
+        title="게시글 검색"
         options={[
           { value: "category", label: "카테고리" },
           { value: "title", label: "제목" },
